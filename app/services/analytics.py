@@ -1,0 +1,230 @@
+"""Per-chapter analytics — the numbers behind the chapter dashboard.
+
+A 'chapter' is a topic node; its 'subtopics' are the concept nodes under it. Everything here is
+derived from the append-only Response spine plus the live node states, so it reflects exactly what
+the learner has done. No new tables: this is pure read-side aggregation.
+"""
+from __future__ import annotations
+
+import uuid
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from .. import models
+from ..models import MOCK_CONTEXTS
+from . import engine, knowledge_graph as kg
+
+# Difficulty bands D1..D5 == authored difficulty -2..2
+_BANDS = [(-2, "D1"), (-1, "D2"), (0, "D3"), (1, "D4"), (2, "D5")]
+
+
+def _hms(seconds: float) -> str:
+    s = int(seconds)
+    h, rem = divmod(s, 3600)
+    m, _ = divmod(rem, 60)
+    return f"{h}h {m:02d}m" if h else f"{m}m"
+
+
+def resolve_chapter(db: Session, exam: str, topic: str | None, topic_id: str | None):
+    """Find the topic node by id (preferred) or case-insensitive name within the exam."""
+    if topic_id:
+        n = db.get(models.KnowledgeNode, topic_id)
+        return n if (n and n.kind == models.NodeKind.topic.value and n.exam_code == exam) else None
+    if topic:
+        for t in kg.topics_of(db, exam):
+            if t.name.lower() == topic.strip().lower():
+                return t
+    return None
+
+
+def chapter_analysis(db: Session, learner: models.Account, topic: models.KnowledgeNode,
+                     now: datetime | None = None) -> dict:
+    now = now or engine.now_utc()
+    concepts = kg._concepts_of_topic(db, topic.id)
+    concept_ids = [c.id for c in concepts]
+    name_by_id = {c.id: c.name for c in concepts}
+
+    # ---- pull every response in this chapter, oldest first ----
+    rows = db.execute(
+        select(models.Response, models.Item.concept_node_id)
+        .join(models.Item, models.Response.item_id == models.Item.item_id)
+        .where(models.Response.learner_id == learner.id,
+               models.Item.concept_node_id.in_(concept_ids or ["__none__"]))
+        .order_by(models.Response.created_at)
+    ).all()
+    responses = [(r, cid) for r, cid in rows]
+    total = len(responses)
+    total_correct = sum(1 for r, _ in responses if r.correct)
+
+    # ---- per-concept live state (mastery / learned / edge) ----
+    cstates = {c.id: kg.concept_state(db, learner.id, c, now) for c in concepts}
+    topic_mastery = kg.topic_mastery(db, learner.id, topic, now)
+    learnt = sum(1 for c in concepts if cstates[c.id].learned)
+
+    # ---- KPIs ----
+    kpis = {
+        "questions_answered": total,
+        "topic_mastery": round(topic_mastery, 4),
+        "concepts_learnt": learnt,
+        "concepts_total": len(concepts),
+        "overall_accuracy": round(total_correct / total, 4) if total else 0.0,
+    }
+
+    # ---- difficulty spread: accuracy per band ----
+    by_band_total = defaultdict(int)
+    by_band_correct = defaultdict(int)
+    for r, _ in responses:
+        by_band_total[r.difficulty_d] += 1
+        by_band_correct[r.difficulty_d] += 1 if r.correct else 0
+    difficulty_spread = [{
+        "band": label, "d": d,
+        "answered": by_band_total[d],
+        "correct": by_band_correct[d],
+        "cleared_pct": round(by_band_correct[d] / by_band_total[d], 4) if by_band_total[d] else 0.0,
+    } for d, label in _BANDS]
+
+    # ---- improvement over time: weekly cumulative accuracy proxy ----
+    improvement = _improvement_over_time(responses, topic_mastery, now)
+
+    # ---- learning vs practice time (first attempt per concept = learning, rest = practice) ----
+    seen_concept: set[str] = set()
+    learned_s = practiced_s = 0.0
+    for r, cid in responses:
+        secs = (r.response_time_ms or 0) / 1000.0
+        if cid not in seen_concept:
+            seen_concept.add(cid)
+            learned_s += secs
+        else:
+            practiced_s += secs
+    tot_s = learned_s + practiced_s
+    learning_vs_practice = {
+        "learned_seconds": round(learned_s), "practiced_seconds": round(practiced_s),
+        "learned_pct": round(learned_s / tot_s, 4) if tot_s else 0.0,
+        "practiced_pct": round(practiced_s / tot_s, 4) if tot_s else 0.0,
+        "learned_hms": _hms(learned_s), "practiced_hms": _hms(practiced_s),
+    }
+
+    # ---- strongest / weakest concepts by mastery ----
+    ranked = sorted(concepts, key=lambda c: cstates[c.id].mastery, reverse=True)
+    def _entry(c):
+        return {"id": c.id, "name": c.name, "mastery": round(cstates[c.id].mastery, 4)}
+    strongest = [_entry(c) for c in ranked[:5]]
+    weakest = [_entry(c) for c in sorted(concepts, key=lambda c: cstates[c.id].mastery)[:5]]
+
+    # ---- per-concept accuracy (for subtopics + recommendations) ----
+    c_total = defaultdict(int)
+    c_correct = defaultdict(int)
+    for r, cid in responses:
+        c_total[cid] += 1
+        c_correct[cid] += 1 if r.correct else 0
+    def _acc(cid):
+        return round(c_correct[cid] / c_total[cid], 4) if c_total[cid] else 0.0
+
+    subtopics = [{
+        "id": c.id, "name": c.name,
+        "mastery": round(cstates[c.id].mastery, 4),
+        "learned": cstates[c.id].learned, "mastered": cstates[c.id].mastered,
+        "attempts": cstates[c.id].attempts, "accuracy": _acc(c.id),
+        "edge": round(cstates[c.id].edge, 2),
+    } for c in concepts]
+
+    # ---- recommended next actions (driven by the same MAB the loop uses) ----
+    actions = _recommended_actions(db, learner, topic, cstates, _acc, now)
+
+    # ---- topic practice test: last mock-context batch in this chapter ----
+    practice_test = _last_practice_test(responses)
+
+    return {
+        "exam": topic.exam_code,
+        "chapter": {"id": topic.id, "name": topic.name,
+                    "section": kg._section_key_of(db, topic)},
+        "kpis": kpis,
+        "difficulty_spread": difficulty_spread,
+        "improvement_over_time": improvement,
+        "learning_vs_practice": learning_vs_practice,
+        "strongest": strongest,
+        "weakest": weakest,
+        "recommended_actions": actions,
+        "practice_test": practice_test,
+        "mastery_threshold": round(engine.H, 4),
+        "subtopics": subtopics,
+    }
+
+
+def _improvement_over_time(responses, current_mastery, now, buckets: int = 8) -> dict:
+    """How the learner's correctness climbed. If activity spans >= 2 weeks we bucket by ISO week;
+    otherwise (fresh data) we bucket by progress through the questions, so the curve is still
+    meaningful. Cumulative correctness rate is a cheap, honest proxy for mastery growth."""
+    if not responses:
+        return {"series": [], "delta": 0.0, "current": round(current_mastery, 4), "unit": "step"}
+
+    span_days = (responses[-1][0].created_at - responses[0][0].created_at).days
+
+    series = []
+    if span_days >= 14:
+        start = now - timedelta(weeks=buckets - 1)
+        run_t = run_c = 0
+        ptr = 0
+        for w in range(buckets):
+            wk_end = start + timedelta(weeks=w + 1)
+            while ptr < len(responses) and responses[ptr][0].created_at <= wk_end:
+                run_t += 1
+                run_c += 1 if responses[ptr][0].correct else 0
+                ptr += 1
+            series.append({"label": f"W{w + 1}", "mastery": round((run_c / run_t) if run_t else 0.0, 4)})
+        unit = "week"
+    else:
+        n = len(responses)
+        seg = max(1, -(-n // buckets))  # ceil(n / buckets)
+        run_c = 0
+        idx = 0
+        b = 0
+        for i, (r, _) in enumerate(responses, start=1):
+            run_c += 1 if r.correct else 0
+            if i % seg == 0 or i == n:
+                b += 1
+                series.append({"label": f"Q{i}", "mastery": round(run_c / i, 4)})
+        unit = "step"
+
+    first = series[0]["mastery"] if series else 0.0
+    last = series[-1]["mastery"] if series else 0.0
+    return {"series": series, "delta": round(last - first, 4), "current": round(last, 4), "unit": unit}
+
+
+def _recommended_actions(db, learner, topic, cstates, acc_fn, now) -> list[dict]:
+    actions: list[dict] = []
+    cands = kg.within_topic_candidates(db, learner.id, topic, now)
+    learn = [c for c, mode in cands if mode == "learn"]
+    if learn:
+        actions.append({"action": "learn", "concept_id": learn[0].id, "concept": learn[0].name,
+                        "text": f"Learn {learn[0].name} next — start with easier items, then push harder."})
+    # weakest learned concepts below threshold -> revise
+    revise = sorted([c for c, mode in cands if mode == "revise"],
+                    key=lambda c: cstates[c.id].mastery)
+    for c in revise[:2]:
+        actions.append({"action": "revise", "concept_id": c.id, "concept": c.name,
+                        "text": f"Revisit {c.name} — mastery {round(cstates[c.id].mastery*100)}%, "
+                                f"accuracy {round(acc_fn(c.id)*100)}%."})
+    if not actions:
+        actions.append({"action": "done", "concept": None,
+                        "text": "Every concept in this chapter is mastered — try a mixed practice test."})
+    return actions
+
+
+def _last_practice_test(responses) -> dict:
+    """Most recent scored-mock batch (by session) within this chapter, if any."""
+    sessions = defaultdict(list)
+    for r, _ in responses:
+        if r.context in MOCK_CONTEXTS and r.session_id:
+            sessions[r.session_id].append(r)
+    if not sessions:
+        return {"last_correct": 0, "last_total": 0, "last_accuracy": 0.0}
+    # pick the session whose latest response is newest
+    sid = max(sessions, key=lambda s: max(x.created_at for x in sessions[s]))
+    batch = sessions[sid]
+    correct = sum(1 for x in batch if x.correct)
+    return {"last_correct": correct, "last_total": len(batch),
+            "last_accuracy": round(correct / len(batch), 4) if batch else 0.0}

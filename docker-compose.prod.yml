@@ -1,0 +1,56 @@
+# Production-shaped stack: Postgres + Redis + N stateless app workers behind an nginx load balancer.
+#
+#   export JWT_SECRET="$(openssl rand -hex 32)"
+#   export ADMIN_EMAILS="you@yourco.com"
+#   docker compose -f docker-compose.prod.yml up -d --build --scale app=3
+#
+# Scale the app tier any time:  docker compose -f docker-compose.prod.yml up -d --scale app=6
+# nginx picks up the new replicas automatically (Docker DNS round-robin).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: vettalume
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vettalume}
+      POSTGRES_DB: vettalume
+    # Headroom for many workers x pooled connections. Rule: keep (replicas x WEB_CONCURRENCY x
+    # (db_pool_size + db_max_overflow)) under this. Past that, add pgbouncer (next phase).
+    command: ["postgres", "-c", "max_connections=200"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vettalume"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://vettalume:${POSTGRES_PASSWORD:-vettalume}@db:5432/vettalume
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET (e.g. openssl rand -hex 32) before deploying}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      DEV_MODE: "false"           # disables passwordless dev-login in production
+      REQUIRE_JWT: "true"         # only real JWTs accepted; legacy X-Learner-Id off
+      WEB_CONCURRENCY: "4"        # uvicorn workers PER container
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    expose: ["8000"]              # internal only; nginx is the public door
+
+  nginx:
+    image: nginx:1.27-alpine
+    volumes: ["./nginx.conf:/etc/nginx/nginx.conf:ro"]
+    ports: ["80:80"]
+    depends_on: [app]
+
+volumes:
+  pgdata:

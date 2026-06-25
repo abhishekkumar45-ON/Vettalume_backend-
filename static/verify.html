@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vettalume · API verification console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EFE6; --paper-2:#EAE6DA; --panel:#FBFAF6; --line:#D9D3C4;
+    --ink:#1B1A17; --ink-2:#5B564B; --muted:#8A8475;
+    --gold:#C8A33C; --gold-deep:#A07E20; --glacier:#4E7E92; --glacier-2:#E7EFF2;
+    --ok:#3E7C5A; --warn:#B7791F; --err:#A53636;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:"Albert Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5}
+  a{color:var(--glacier)}
+  code,kbd,pre,.mono{font-family:var(--mono)}
+
+  /* session bar */
+  header{position:sticky;top:0;z-index:10;background:var(--ink);color:var(--paper);border-bottom:3px solid var(--gold)}
+  .bar{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .brand{display:flex;flex-direction:column;line-height:1.1;margin-right:6px}
+  .brand b{font-size:16px;letter-spacing:.04em}
+  .brand span{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase}
+  .grow{flex:1}
+  .seg{display:inline-flex;border:1px solid #3a382f;border-radius:6px;overflow:hidden}
+  .seg button{background:transparent;color:var(--paper);border:0;padding:6px 12px;font-family:var(--mono);font-size:12px;cursor:pointer}
+  .seg button.on{background:var(--gold);color:#1b1a17;font-weight:600}
+  header input{background:#26241e;border:1px solid #3a382f;color:var(--paper);border-radius:6px;padding:6px 9px;font-family:var(--mono);font-size:12px}
+  header input::placeholder{color:#8a8475}
+  .hbtn{background:var(--glacier);color:#fff;border:0;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .hbtn.ghost{background:transparent;border:1px solid #3a382f;color:var(--paper)}
+  .hbtn.gold{background:var(--gold);color:#1b1a17}
+  .who{font-family:var(--mono);font-size:12px;color:var(--glacier-2)}
+  .who b{color:#fff}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:6px;vertical-align:middle}
+  .dot.up{background:#7BD0A0}.dot.down{background:#E07A7A}
+
+  .chips{max-width:1180px;margin:0 auto;padding:8px 20px 0;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--mono);font-size:11px;background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--ink-2)}
+  .chip b{color:var(--ink)}
+  .chip i{color:var(--muted);font-style:normal}
+
+  /* layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 80px;display:grid;grid-template-columns:172px 1fr;gap:22px}
+  nav{position:sticky;top:118px;align-self:start;font-family:var(--mono);font-size:12px}
+  nav a{display:block;padding:5px 8px;color:var(--ink-2);text-decoration:none;border-left:2px solid transparent;border-radius:0 4px 4px 0}
+  nav a:hover{background:var(--paper-2);color:var(--ink)}
+  nav .lead{color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-size:10px;margin:14px 0 4px;padding-left:8px}
+
+  section{margin-bottom:30px;scroll-margin-top:130px}
+  .h{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:14px}
+  .h h2{margin:0;font-size:17px;letter-spacing:.01em}
+  .h .ph{font-family:var(--mono);font-size:11px;color:var(--gold-deep);background:#F6EFD8;border:1px solid #E7D9A8;border-radius:4px;padding:1px 7px}
+  .h .blurb{color:var(--muted);font-size:12.5px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+  .crow{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
+  .m{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;min-width:46px;text-align:center}
+  .m.GET{background:var(--glacier-2);color:#2f5664;border:1px solid #c5dbe3}
+  .m.POST{background:#F6EFD8;color:#8a6a10;border:1px solid #e7d9a8}
+  .path{font-family:var(--mono);font-size:13px;font-weight:500}
+  .desc{color:var(--muted);font-size:12px;margin-left:auto;text-align:right;max-width:48%}
+  .body{padding:0 14px 14px;border-top:1px dashed var(--line);display:none}
+  .card.open .body{display:block}
+  .fields{display:flex;flex-wrap:wrap;gap:10px 14px;margin:12px 0}
+  .f{display:flex;flex-direction:column;gap:3px}
+  .f label{font-family:var(--mono);font-size:10.5px;color:var(--ink-2);letter-spacing:.03em}
+  .f input,.f select,.f textarea{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:#fff;color:var(--ink);min-width:120px}
+  .f textarea{min-width:420px;min-height:70px}
+  .f.path input{border-color:#cdbf95;background:#fffdf4}
+  .go{background:var(--ink);color:var(--paper);border:0;border-radius:7px;padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer}
+  .go:hover{background:#000}
+  .mini{background:transparent;border:1px solid var(--line);border-radius:6px;padding:7px 11px;font-size:12px;cursor:pointer;color:var(--ink-2)}
+  .acts{display:flex;gap:8px;align-items:center}
+
+  .resp{margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--line);display:none}
+  .resp.show{display:block}
+  .rhead{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--paper-2);font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+  .pill{font-family:var(--mono);font-weight:600;font-size:11px;padding:2px 8px;border-radius:5px;color:#fff}
+  .pill.s2{background:var(--ok)}.pill.s4{background:var(--warn)}.pill.s5{background:var(--err)}.pill.s0{background:var(--muted)}
+  pre.out{margin:0;padding:12px 14px;background:#1b1a17;color:#e8e3d5;font-size:12px;max-height:360px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  pre.out .k{color:#C8A33C}pre.out .s{color:#9FD0B6}pre.out .n{color:#88BBD0}pre.out .b{color:#E0A0A0}
+  .hint{background:#F6EFD8;border:1px solid #E7D9A8;border-radius:8px;padding:10px 13px;font-size:12.5px;color:#6b5410;margin-bottom:16px}
+  .hint b{color:#4d3c08}
+  @media(max-width:820px){.wrap{grid-template-columns:1fr}nav{display:none}.desc{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><b>Vettalume</b><span>API console</span></div>
+    <span class="who"><span id="dot" class="dot"></span><span id="health">checking…</span></span>
+    <div class="grow"></div>
+    <span class="who" style="opacity:.8">exam</span>
+    <div class="seg" id="examSeg">
+      <button data-x="CAT" class="on">CAT</button><button data-x="GMAT">GMAT</button><button data-x="GRE">GRE</button>
+    </div>
+    <input id="email" placeholder="email" style="width:150px" value="dev@vettalume.test">
+    <input id="pass" type="password" placeholder="password (≥8)" style="width:130px" value="hunter2pass">
+    <button class="hbtn" onclick="quickAuth('login')">Login</button>
+    <button class="hbtn gold" onclick="quickAuth('register')">Register</button>
+    <button class="hbtn ghost" onclick="quickAuth('dev')">Dev-login</button>
+    <span class="who" id="authWho">not signed in</span>
+    <button class="hbtn ghost" onclick="signout()">Sign out</button>
+  </div>
+  <div class="chips">
+    <span class="chip">base <b id="cBase">(same origin)</b></span>
+    <span class="chip">token <b id="cTok">—</b></span>
+    <span class="chip">mock <b id="cMock">—</b> <i>(auto-captured)</i></span>
+    <span class="chip">item <b id="cItem">—</b></span>
+    <span class="chip">run <b id="cRun">—</b></span>
+  </div>
+  <div style="height:8px"></div>
+</header>
+
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main">
+    <div class="hint">
+      <b>How to use:</b> set the <b>exam</b> and sign in (Dev-login is one click — it also auto-grants an entitlement). The JWT is captured and sent on every call.
+      Run things in order: <b>Mocks → start</b> captures the session, <b>next</b> captures an item id, <b>answer</b> uses it — then <b>Diagnosis</b>, <b>Plan</b>, <b>Review</b>. Click a row to expand it.
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------------- shared session state ---------------- */
+const LS="vtl-console";
+const state=Object.assign({base:"",exam:"CAT",token:"",account:null,mock:"",item:"",run:""},
+  JSON.parse(localStorage.getItem(LS)||"{}"));
+function save(){localStorage.setItem(LS,JSON.stringify(state));paint();}
+function paint(){
+  document.getElementById("cBase").textContent=state.base||"(same origin)";
+  document.getElementById("cTok").textContent=state.token?state.token.slice(0,14)+"…":"—";
+  document.getElementById("cMock").textContent=state.mock||"—";
+  document.getElementById("cItem").textContent=state.item||"—";
+  document.getElementById("cRun").textContent=state.run||"—";
+  document.getElementById("authWho").innerHTML=state.account?("as <b style='color:#fff'>"+state.account.email+"</b>"):"not signed in";
+  document.querySelectorAll("#examSeg button").forEach(b=>b.classList.toggle("on",b.dataset.x===state.exam));
+  document.querySelectorAll('input[data-sync="exam"]').forEach(i=>{i.value=state.exam;});
+}
+
+/* ---------------- API helper ---------------- */
+async function api(method,path,{query,body,file,auth=true}={}){
+  let url=(state.base||"")+path;
+  if(query){const q=Object.entries(query).filter(([,v])=>v!==""&&v!=null).map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(v));if(q.length)url+="?"+q.join("&");}
+  const opt={method,headers:{}};
+  if(auth&&state.token)opt.headers["Authorization"]="Bearer "+state.token;
+  if(file){const fd=new FormData();fd.append("file",file);opt.body=fd;}
+  else if(body!=null){opt.headers["Content-Type"]="application/json";opt.body=typeof body==="string"?body:JSON.stringify(body);}
+  let status=0,data=null,raw="";
+  try{const r=await fetch(url,opt);status=r.status;raw=await r.text();try{data=JSON.parse(raw);}catch{data=raw;}}
+  catch(e){data={error:"network / CORS — is the server running at "+(state.base||location.origin)+"?",detail:String(e)};}
+  return {status,data,url:url.replace(location.origin,"")};
+}
+
+/* ---------------- auto-capture of ids ---------------- */
+function digId(o,keys){if(!o||typeof o!=="object")return null;for(const k of keys)if(o[k])return o[k];
+  for(const v of Object.values(o)){if(v&&typeof v==="object"){const f=digId(v,keys);if(f)return f;}}return null;}
+function capture(path,data){
+  if(typeof data!=="object"||data==null)return;
+  const sid=digId(data,["session_id"]); if(sid&&(path.includes("/mock")))state.mock=sid;
+  const item=digId(data,["item_id"]); if(item&&!path.includes("/score")&&!path.includes("answer"))state.item=item;
+  const run=digId(data,["run_id"]); if(run)state.run=run;
+  save();
+}
+
+/* ---------------- auth shortcuts ---------------- */
+async function quickAuth(kind){
+  const email=document.getElementById("email").value, password=document.getElementById("pass").value;
+  let r;
+  if(kind==="register")r=await api("POST","/auth/register",{body:{email,password},auth:false});
+  else if(kind==="login")r=await api("POST","/auth/login",{body:{email,password},auth:false});
+  else r=await api("POST","/auth/dev-login",{body:{email,exam_code:state.exam},auth:false});
+  if(r.status<300&&r.data&&r.data.access_token){state.token=r.data.access_token;state.account=r.data.account||{email};save();}
+  else alert("Auth failed ("+r.status+"): "+JSON.stringify(r.data));
+}
+function signout(){state.token="";state.account=null;save();}
+
+/* ---------------- the endpoint catalogue ---------------- */
+// f(name,def,opts) field spec.  q=query, b=body, file=true, auth=false to skip token.
+const F=(name,def="",opts=null,ph="")=>({name,def,opts,ph});
+const EXAM=F("exam","",null);                         // synced to selector
+const GROUPS=[
+ ["Auth","P6","Real JWT — register / login / me. The token is captured automatically.",[
+   {m:"POST",p:"/auth/register",auth:false,b:[F("email","you@vettalume.test"),F("password","hunter2pass"),F("display_name","")],d:"create account → Bearer token"},
+   {m:"POST",p:"/auth/login",auth:false,b:[F("email","you@vettalume.test"),F("password","hunter2pass")],d:"verify → Bearer token"},
+   {m:"GET",p:"/auth/me",d:"the authenticated learner"},
+   {m:"POST",p:"/auth/dev-login",auth:false,b:[F("email","dev@vettalume.test"),F("exam_code","CAT")],d:"passwordless dev account + entitlement"},
+ ]],
+ ["Account & warm-start","P6","One identity; cross-exam transfer (provisional priors).",[
+   {m:"GET",p:"/account/profile",d:"identity + entitlements"},
+   {m:"GET",p:"/account/warm-start",q:[EXAM],d:"preview transfer (no persist)"},
+   {m:"POST",p:"/account/warm-start",q:[EXAM],d:"compute + persist priors"},
+ ]],
+ ["Billing & entitlements","P5","Catalog, purchases, bundles, free tiers.",[
+   {m:"GET",p:"/billing/catalog",auth:false,d:"SKUs (multi-currency + bundle)"},
+   {m:"GET",p:"/billing/entitlements",d:"this learner's entitlements"},
+   {m:"GET",p:"/billing/access",q:[EXAM],d:"state + free-tier usage"},
+   {m:"POST",p:"/billing/grant-free",q:[EXAM],d:"grant the free tier (auto-warms)"},
+   {m:"POST",p:"/billing/purchase",b:[F("plan_code","cat_pro",["gmat_summit","gre_core","cat_pro","bundle_gmat_gre"])],d:"record order + grant"},
+ ]],
+ ["Content & catalog","P0–P1","Syllabus tree and bank ingestion.",[
+   {m:"GET",p:"/catalog/tree",q:[EXAM],auth:false,d:"section → topic → concept"},
+   {m:"POST",p:"/ingest/question-bank/xlsx",auth:false,file:true,d:"upload an .xlsx bank (sheet per exam)"},
+ ]],
+ ["Learning engine","P1","ZPD selection, blended mastery, spaced review.",[
+   {m:"GET",p:"/learn/next",q:[EXAM,F("section",""),F("exclude","")],d:"next concept/item (captures item)"},
+   {m:"POST",p:"/learn/answer",b:[F("item_id","",null,"uses captured item"),F("answer_given","A")],d:"submit an answer"},
+   {m:"GET",p:"/learn/map",q:[EXAM,F("section","")],d:"mastery map"},
+   {m:"GET",p:"/learn/reviews",q:[EXAM],d:"due spaced reviews"},
+   {m:"GET",p:"/learn/concept/{node_id}",d:"one concept's state"},
+ ]],
+ ["Practice loop","P0–P1","Single-concept practice (feeds diagnosis).",[
+   {m:"GET",p:"/practice/next",q:[F("node_id","ratio-basic")],d:"an item for a concept (captures item)"},
+   {m:"POST",p:"/practice/answer",b:[F("item_id","",null,"uses captured item"),F("answer_given","A"),F("context","practice",["practice","diagnostic"])],d:"answer (server grades)"},
+   {m:"GET",p:"/practice/state",q:[EXAM],d:"per-node practice state"},
+ ]],
+ ["Mocks","P3","3 delivery engines + 3 scoring adapters. Run top to bottom.",[
+   {m:"POST",p:"/mock/start",q:[EXAM,F("mode","item_adaptive",["item_adaptive","mst","fixed_form"]),F("section",""),F("max_items","12"),F("se_target","0.30"),F("routing_size","5"),F("seed","1")],d:"begin a mock (captures session)"},
+   {m:"GET",p:"/mock/{sid}/next",d:"serve next item (captures item)"},
+   {m:"POST",p:"/mock/{sid}/answer",b:[F("item_id","",null,"captured item"),F("answer_given","A")],d:"answer + live θ checkpoint"},
+   {m:"GET",p:"/mock/{sid}",d:"resume / state snapshot"},
+   {m:"GET",p:"/mock/{sid}/score",d:"final scored report"},
+   {m:"GET",p:"/mock/exposure/report",q:[EXAM,F("top","15")],d:"item exposure"},
+ ]],
+ ["Diagnosis","P4","Cause taxonomy, leak ranking, decomposition (practice only).",[
+   {m:"GET",p:"/diagnosis",q:[EXAM],d:"full diagnosis"},
+   {m:"GET",p:"/diagnosis/leaks",q:[EXAM,F("top","10")],d:"ranked leaks"},
+   {m:"GET",p:"/diagnosis/mock/{sid}",d:"decompose a mock's misses"},
+ ]],
+ ["Plan engine","P4","Prereq-ordered, re-plan with plain-language diffs.",[
+   {m:"POST",p:"/plan/generate",q:[EXAM],d:"generate / re-plan (refuses if blind)"},
+   {m:"GET",p:"/plan",q:[EXAM],d:"current active plan"},
+   {m:"GET",p:"/plan/history",q:[EXAM],d:"every version + explanation"},
+ ]],
+ ["Review & debrief","P5","Honest score band, review queue, progress.",[
+   {m:"GET",p:"/review/mock/{sid}",d:"full debrief (honest band)"},
+   {m:"GET",p:"/review/queue",q:[EXAM],d:"missed items + solutions"},
+   {m:"GET",p:"/review/progress",q:[EXAM],d:"banded ability trend + accuracy"},
+ ]],
+ ["Honest Perimeter","P5","The platform's published accuracy record.",[
+   {m:"GET",p:"/honesty/accuracy",q:[EXAM,F("kind","")],auth:false,d:"coverage + mean error"},
+ ]],
+ ["Psychometrics (IRT)","P2","Calibration worker + EAP scoring + versioned params.",[
+   {m:"POST",p:"/irt/calibrate",q:[EXAM,F("two_pl_at","500"),F("three_pl_at","2000"),F("activate","true")],auth:false,d:"calibrate cold responses (captures run)"},
+   {m:"GET",p:"/irt/runs",q:[EXAM],auth:false,d:"calibration runs"},
+   {m:"GET",p:"/irt/runs/{run_id}",auth:false,d:"run detail + parameters"},
+   {m:"GET",p:"/irt/item/{item_id}",auth:false,d:"an item's IRT params + history"},
+   {m:"POST",p:"/irt/score",q:[EXAM,F("scope","diagnostic"),F("session_id",""),F("method","eap")],d:"score ability (EAP)"},
+ ]],
+ ["Analysis","P1","Chapter analytics.",[
+   {m:"GET",p:"/analysis/chapter",q:[EXAM,F("topic","")],d:"per-chapter rollup"},
+ ]],
+ ["Custom request","—","Anything not pre-built (e.g. /irt/simulate, /analysis/simulate).",[
+   {m:"GET",p:"/health",auth:false,custom:true,d:"edit method, path, and JSON body freely"},
+ ]],
+];
+
+/* ---------------- render ---------------- */
+const nav=document.getElementById("nav"), main=document.getElementById("main");
+nav.innerHTML='<div class="lead">jump to</div>';
+GROUPS.forEach((g,gi)=>{
+  const id="g"+gi;
+  const a=document.createElement("a");a.href="#"+id;a.textContent=g[0];nav.appendChild(a);
+  const sec=document.createElement("section");sec.id=id;
+  sec.innerHTML='<div class="h"><h2>'+g[0]+'</h2><span class="ph">'+g[1]+'</span><span class="blurb">'+g[2]+'</span></div>';
+  g[3].forEach((ep,ei)=>sec.appendChild(card(ep,gi+"-"+ei)));
+  main.appendChild(sec);
+});
+
+function pathParams(p){return [...p.matchAll(/\{(\w+)\}/g)].map(m=>m[1]);}
+function defForParam(name){return name==="sid"?state.mock:name==="item_id"?state.item:name==="run_id"?state.run:name==="node_id"?"ratio-basic":"";}
+
+function card(ep,cid){
+  const el=document.createElement("div");el.className="card";
+  const pp=pathParams(ep.p);
+  let fields="";
+  pp.forEach(n=>fields+=fieldHtml({name:n,def:defForParam(n),ph:"path"},cid,"path"));
+  (ep.q||[]).forEach(f=>fields+=fieldHtml(f,cid,"q"));
+  (ep.b||[]).forEach(f=>fields+=fieldHtml(f,cid,"b"));
+  if(ep.file)fields+='<div class="f"><label>file (.xlsx)</label><input id="'+cid+'__file" type="file" accept=".xlsx"></div>';
+  if(ep.custom)fields='<div class="f"><label>method</label><select id="'+cid+'__cm"><option>GET</option><option>POST</option></select></div>'
+    +'<div class="f" style="flex:1"><label>path</label><input id="'+cid+'__cp" value="/health" style="min-width:280px"></div>'
+    +'<div class="f" style="flex-basis:100%"><label>JSON body (POST only)</label><textarea id="'+cid+'__cb" placeholder=\'{"key":"value"}\'></textarea></div>';
+  el.innerHTML=
+    '<div class="crow" onclick="this.parentNode.classList.toggle(\'open\')">'
+    +'<span class="m '+ep.m+'">'+ep.m+'</span><span class="path">'+ep.p+'</span>'
+    +'<span class="desc">'+(ep.d||"")+'</span></div>'
+    +'<div class="body"><div class="fields">'+fields+'</div>'
+    +'<div class="acts"><button class="go" id="'+cid+'__go">Run</button>'
+    +'<button class="mini" id="'+cid+'__curl">Copy as curl</button>'
+    +(pp.length?'<button class="mini" id="'+cid+'__sync">↻ use captured ids</button>':'')+'</div>'
+    +'<div class="resp" id="'+cid+'__resp"><div class="rhead"><span class="pill s0" id="'+cid+'__pill">—</span><span id="'+cid+'__line"></span></div><pre class="out" id="'+cid+'__out"></pre></div></div>';
+  setTimeout(()=>wire(ep,cid,pp),0);
+  return el;
+}
+function fieldHtml(f,cid,kind){
+  const fid=cid+"__"+kind+"__"+f.name, sync=f.name==="exam"?' data-sync="exam"':'';
+  const val=f.name==="exam"?state.exam:(f.def||"");
+  let inp;
+  if(f.opts)inp='<select id="'+fid+'">'+f.opts.map(o=>'<option'+(o===val?' selected':'')+'>'+o+'</option>').join("")+'</select>';
+  else inp='<input id="'+fid+'" value="'+val+'" placeholder="'+(f.ph||"")+'"'+sync+'>';
+  return '<div class="f '+(kind==="path"?"path":"")+'"><label>'+f.name+(kind==="path"?" (path)":"")+'</label>'+inp+'</div>';
+}
+function readReq(ep,cid,pp){
+  let path=ep.p, method=ep.m, body=null, file=null, query={};
+  if(ep.custom){method=document.getElementById(cid+"__cm").value;path=document.getElementById(cid+"__cp").value;
+    const t=document.getElementById(cid+"__cb").value.trim();body=t?t:null;return {method,path,body,query:null,file:null,auth:ep.auth};}
+  pp.forEach(n=>{let v=document.getElementById(cid+"__path__"+n).value.trim();path=path.replace("{"+n+"}",encodeURIComponent(v));});
+  (ep.q||[]).forEach(f=>{let v=document.getElementById(cid+"__q__"+f.name).value;if(f.name==="exam"&&!v)v=state.exam;query[f.name]=v;});
+  if(ep.b){body={};ep.b.forEach(f=>{let v=document.getElementById(cid+"__b__"+f.name).value;
+    if(f.name==="item_id"&&!v)v=state.item;if(v!=="")body[f.name]=v;});}
+  if(ep.file){const fe=document.getElementById(cid+"__file");file=fe&&fe.files[0];}
+  return {method,path,body,query,file,auth:ep.auth};
+}
+function wire(ep,cid,pp){
+  const go=document.getElementById(cid+"__go");if(!go)return;
+  go.onclick=async()=>{
+    const req=readReq(ep,cid,pp);
+    go.textContent="…";go.disabled=true;
+    const r=await api(req.method,req.path,{query:req.query,body:req.body,file:req.file,auth:req.auth});
+    go.textContent="Run";go.disabled=false;
+    capture(req.path,r.data);
+    const resp=document.getElementById(cid+"__resp");resp.classList.add("show");
+    const pill=document.getElementById(cid+"__pill");const sc=r.status;
+    pill.className="pill "+(sc>=500?"s5":sc>=400?"s4":sc>=200?"s2":"s0");pill.textContent=sc||"ERR";
+    document.getElementById(cid+"__line").textContent=req.method+" "+r.url;
+    document.getElementById(cid+"__out").innerHTML=hl(r.data);
+  };
+  const cu=document.getElementById(cid+"__curl");
+  if(cu)cu.onclick=()=>{const req=readReq(ep,cid,pp);let url=(state.base||location.origin)+req.path;
+    if(req.query){const q=Object.entries(req.query).filter(([,v])=>v!=="").map(([k,v])=>k+"="+encodeURIComponent(v));if(q.length)url+="?"+q.join("&");}
+    let c="curl -X "+req.method+" '"+url+"'";
+    if(req.auth&&state.token)c+=" \\\n  -H 'Authorization: Bearer "+state.token+"'";
+    if(req.body)c+=" \\\n  -H 'Content-Type: application/json' \\\n  -d '"+(typeof req.body==="string"?req.body:JSON.stringify(req.body))+"'";
+    if(req.file)c+=" \\\n  -F 'file=@/path/to.xlsx'";
+    navigator.clipboard.writeText(c);cu.textContent="copied ✓";setTimeout(()=>cu.textContent="Copy as curl",1200);};
+  const sy=document.getElementById(cid+"__sync");
+  if(sy)sy.onclick=()=>{pp.forEach(n=>{document.getElementById(cid+"__path__"+n).value=defForParam(n);});};
+}
+
+/* tiny JSON syntax highlighter */
+function hl(d){const s=typeof d==="string"?d:JSON.stringify(d,null,2);
+  return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))
+    .replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:')
+    .replace(/: "([^"]*)"/g,': <span class="s">"$1"</span>')
+    .replace(/: (-?\d+\.?\d*)/g,': <span class="n">$1</span>')
+    .replace(/: (true|false|null)/g,': <span class="b">$1</span>');}
+
+/* exam selector + health + boot */
+document.getElementById("examSeg").addEventListener("click",e=>{if(e.target.dataset.x){state.exam=e.target.dataset.x;save();}});
+async function ping(){const r=await api("GET","/health",{auth:false});const up=r.status>=200&&r.status<300;
+  document.getElementById("dot").className="dot "+(up?"up":"down");
+  document.getElementById("health").textContent=up?("online · v"+(r.data&&r.data.phase!=null?"":"")+"ok"):"server offline";
+  if(up&&r.data){document.getElementById("health").textContent="online";}}
+paint();ping();setInterval(ping,15000);
+</script>
+</body>
+</html>

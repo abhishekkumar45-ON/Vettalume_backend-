@@ -1,0 +1,7 @@
+# Postgres driver — used by Docker/compose only. Installs fine on the 3.12 container image.
+# NOT needed for the local SQLite run.
+-r requirements.txt
+psycopg2-binary==2.9.10
+
+# Production ASGI process manager (multi-worker serving). Dev uses 'uvicorn --reload' instead.
+gunicorn==23.0.0

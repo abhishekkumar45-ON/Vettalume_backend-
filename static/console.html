@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vettalume — Live Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0C0E13; --panel:#12151C; --panel-2:#161A22; --panel-3:#1B202A;
+  --line:#262B35; --line-soft:#1C212B;
+  --text:#F3F0E9; --text-2:#9BA1AD; --text-3:#666C77; --text-4:#454B55;
+  --brand:#ECD9A6; --ok:#69B88C; --warn:#D08A52; --low:#C2685C; --lock:#5A6069;
+  --f-display:"Fraunces",Georgia,serif; --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace; --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body)}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--brand)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+
+/* header */
+.bar{position:sticky;top:0;z-index:20;background:rgba(12,14,19,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft)}
+.bar-in{display:flex;align-items:center;gap:16px;height:62px}
+.mark{display:flex;align-items:baseline;gap:9px;font-family:var(--f-display);font-weight:400;font-size:22px;letter-spacing:.3px}
+.mark .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);align-self:center}
+.mark .lume{color:var(--brand);font-style:italic;font-weight:300}
+.spacer{flex:1}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(255,255,255,.012)}
+.seg button{border:0;background:transparent;color:var(--text-2);font-size:12.5px;font-weight:500;padding:6px 15px;border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--panel-3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+.seg button:hover{color:var(--text)}
+.who{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:11px;color:var(--text-3)}
+.who b{color:var(--text-2);font-weight:500}
+.who button{border:1px solid var(--line);background:var(--panel-2);color:var(--text-2);border-radius:8px;
+  font-size:11px;padding:5px 9px;font-family:var(--f-mono)}
+.who button:hover{color:var(--text);border-color:var(--text-4)}
+
+/* layout */
+main{padding:26px 0 60px}
+.grid{display:grid;grid-template-columns:1fr 460px;gap:22px;align-items:start}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden}
+.card .hd{display:flex;align-items:center;gap:10px;padding:15px 20px;border-bottom:1px solid var(--line-soft)}
+.card .hd .idx{font-family:var(--f-mono);font-size:11px;letter-spacing:2px;color:var(--text-3);text-transform:uppercase}
+.card .hd .sp{flex:1}
+.card .bd{padding:20px}
+
+/* breadcrumb + mode */
+.crumb{font-family:var(--f-mono);font-size:11.5px;color:var(--text-3);letter-spacing:.4px;margin-bottom:6px}
+.crumb b{color:var(--brand);font-weight:500}
+.badge{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.badge.learn{color:var(--brand);border-color:rgba(236,217,166,.35);background:rgba(236,217,166,.06)}
+.badge.revise{color:var(--warn);border-color:rgba(208,138,82,.35);background:rgba(208,138,82,.06)}
+.badge.ok{color:var(--ok);border-color:rgba(105,184,140,.35);background:rgba(105,184,140,.07)}
+.badge.low{color:var(--low);border-color:rgba(194,104,92,.35);background:rgba(194,104,92,.07)}
+.badge.lock{color:var(--lock);border-color:var(--line)}
+.rationale{font-size:12.5px;color:var(--text-3);line-height:1.6;margin:14px 0 0;
+  border-left:2px solid var(--line);padding-left:12px}
+
+/* question */
+.stem{font-size:18px;line-height:1.55;margin:18px 0 18px;font-weight:400}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--panel-2);color:var(--text);
+  border-radius:10px;padding:13px 16px;font-size:14.5px;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--text-4);background:var(--panel-3)}
+.opt:disabled{cursor:default;opacity:.85}
+.opt.correct{border-color:rgba(105,184,140,.6);background:rgba(105,184,140,.08)}
+.opt.wrong{border-color:rgba(194,104,92,.6);background:rgba(194,104,92,.08)}
+.tita{display:flex;gap:10px}
+.tita input{flex:1;background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:13px 16px;font-size:14.5px;font-family:var(--f-body)}
+.btn{border:1px solid var(--line);background:var(--panel-3);color:var(--text);border-radius:10px;
+  padding:11px 18px;font-size:13.5px;font-weight:500}
+.btn:hover{border-color:var(--text-4)}
+.btn.brand{background:var(--brand);color:#1a1710;border-color:var(--brand)}
+.btn.brand:hover{filter:brightness(1.05)}
+
+/* feedback / metrics */
+.fb{margin-top:20px;padding-top:18px;border-top:1px solid var(--line-soft)}
+.verdict{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:20px}
+.verdict.right{color:var(--ok)} .verdict.no{color:var(--low)}
+.soln{font-size:13.5px;color:var(--text-2);line-height:1.6;margin-top:10px;
+  background:rgba(255,255,255,.02);border:1px solid var(--line-soft);border-radius:10px;padding:12px 14px}
+.metrics{display:flex;flex-direction:column;gap:11px;margin-top:18px}
+.metric{display:grid;grid-template-columns:26px 1fr 56px;align-items:center;gap:12px}
+.metric .k{font-family:var(--f-mono);font-size:12px;color:var(--text-3)}
+.metric .track{height:6px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.metric .track i{display:block;height:100%;border-radius:99px;background:var(--brand)}
+.metric .v{font-family:var(--f-mono);font-size:12px;color:var(--text);text-align:right}
+.mline{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.mstat{font-family:var(--f-mono);font-size:12px;color:var(--text-2)}
+.mstat b{color:var(--text);font-weight:500}
+/* MAPLE edge mini-ladder (-2..2) */
+.edge{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11.5px;color:var(--text-3)}
+.ladder{position:relative;width:140px;height:8px;border-radius:99px;background:var(--panel-3)}
+.ladder b{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:var(--brand);
+  transform:translateX(-50%);box-shadow:0 0 0 3px rgba(236,217,166,.12)}
+
+/* theory */
+.theory{margin-top:18px;border-top:1px solid var(--line-soft);padding-top:16px}
+.theory summary{cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--text-3);list-style:none}
+.theory summary::-webkit-details-marker{display:none}
+.theory .body{font-size:14px;color:var(--text-2);line-height:1.72;margin-top:12px;white-space:pre-wrap}
+
+/* map */
+.rec-banner{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-2);
+  background:rgba(236,217,166,.05);border:1px solid rgba(236,217,166,.18);border-radius:10px;
+  padding:10px 13px;margin-bottom:14px}
+.rec-banner b{color:var(--brand);font-weight:500}
+.topic{border:1px solid var(--line-soft);border-radius:11px;margin-bottom:9px;overflow:hidden;background:var(--panel-2)}
+.topic .row{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+.topic.locked{opacity:.6}.topic.locked .row{cursor:default}
+.tdot{width:8px;height:8px;border-radius:50%;flex:none}
+.tn{font-size:13.5px;font-weight:500;flex:1;min-width:0}
+.tmeter{width:72px;height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden;flex:none}
+.tmeter i{display:block;height:100%;border-radius:99px}
+.tstate{font-family:var(--f-mono);font-size:10.5px;width:96px;text-align:right;flex:none;color:var(--text-3)}
+.concepts{border-top:1px solid var(--line-soft);padding:4px 14px 10px;display:none}
+.topic.open .concepts{display:block}
+.con{display:grid;grid-template-columns:1fr 64px auto;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--line-soft)}
+.con:last-child{border-bottom:0}
+.cn{font-size:12.5px;color:var(--text-2)}
+.cmeter{height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.cmeter i{display:block;height:100%}
+.cmeta{font-family:var(--f-mono);font-size:10px;color:var(--text-3);display:flex;gap:6px;align-items:center}
+.pill{font-family:var(--f-mono);font-size:9.5px;padding:1px 6px;border-radius:99px;border:1px solid var(--line)}
+.pill.m{color:var(--ok);border-color:rgba(105,184,140,.4)}
+.pill.l{color:var(--brand);border-color:rgba(236,217,166,.4)}
+.pill.d{color:var(--warn);border-color:rgba(208,138,82,.4)}
+.pill.lk{color:var(--lock);border-color:rgba(150,150,150,.4)}
+.con.locked .cn{color:var(--text-4)}
+.zpd{grid-column:1 / -1;font-family:var(--f-mono);font-size:10px;line-height:1.5;margin-top:2px;
+  padding:5px 8px;border-radius:7px;border:1px solid var(--line-soft)}
+.zpd b{color:var(--text-2);font-weight:600}
+.zpd.blocked{color:var(--lock);background:rgba(150,150,150,.06);border-color:rgba(150,150,150,.25)}
+.zpd.ok{color:var(--text-3);background:rgba(105,184,140,.05);border-color:rgba(105,184,140,.18)}
+
+.due{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text-2);
+  padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.due:last-child{border-bottom:0}
+.empty{font-size:12.5px;color:var(--text-3);padding:8px 2px}
+
+/* log */
+.log{margin-top:22px}
+.log .bd{font-family:var(--f-mono);font-size:11px;line-height:1.6;max-height:230px;overflow:auto;color:var(--text-3)}
+.log .ln{padding:2px 0;border-bottom:1px solid var(--line-soft);white-space:pre-wrap;word-break:break-word}
+.log .ln .mth{color:var(--brand)} .log .ln .err{color:var(--low)} .log .ln .ok{color:var(--ok)}
+.foot{font-family:var(--f-mono);font-size:11px;color:var(--text-4);text-align:center;padding:30px 0 0}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap bar-in">
+  <div class="mark"><span class="dot"></span>Vetta<span class="lume">lume</span></div>
+  <span style="font-family:var(--f-mono);font-size:10.5px;color:var(--text-4);letter-spacing:1px;margin-left:4px">LIVE&nbsp;CONSOLE</span>
+  <div class="spacer"></div>
+  <div class="seg" id="seg" role="group" aria-label="Choose exam">
+    <button data-exam="CAT" aria-pressed="true">CAT</button>
+    <button data-exam="GMAT" aria-pressed="false">GMAT</button>
+    <button data-exam="GRE" aria-pressed="false">GRE</button>
+  </div>
+  <div class="who">learner&nbsp;<b id="who">…</b><button id="reset" title="Start a fresh learner (clears progress)">reset</button></div>
+</div></header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- LEFT: the learning loop -->
+    <section class="card">
+      <div class="hd"><span class="idx">Learning session</span><span class="sp"></span>
+        <button class="btn" id="skip" title="Skip this question — drop it for this session and serve a different one">skip →</button></div>
+      <div class="bd" id="session"><div class="empty">Booting…</div></div>
+    </section>
+
+    <!-- RIGHT: the knowledge map -->
+    <section class="card">
+      <div class="hd"><span class="idx">Knowledge map</span><span class="sp"></span>
+        <button class="btn" id="refresh" title="Reload the map and reviews">refresh</button></div>
+      <div class="bd">
+        <div id="recBanner"></div>
+        <div id="map"><div class="empty">Loading map…</div></div>
+        <div style="margin-top:18px"><div class="idx" style="font-family:var(--f-mono);font-size:11px;letter-spacing:2px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">Due for review</div>
+          <div id="reviews"><div class="empty">—</div></div></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card log">
+    <div class="hd"><span class="idx">Event log</span><span class="sp"></span>
+      <button class="btn" id="clearlog">clear</button></div>
+    <div class="bd" id="log"></div>
+  </section>
+
+  <div class="foot">every action above is a real call to your FastAPI backend · same-origin · X-Learner-Id auth</div>
+</main>
+
+<script>
+"use strict";
+const API = "";                 // same origin — this page is served by the backend
+let EXAM = "CAT";
+let LEARNER = null;
+let CURRENT = null;             // current question payload
+let SKIPPED = new Set();        // items the user skipped this session (never re-served until reset)
+let LAST_ITEM = null;          // last item shown — excluded on the very next fetch (no instant repeat)
+const excludeParam = () => {
+  const ids = new Set(SKIPPED);
+  if(LAST_ITEM) ids.add(LAST_ITEM);
+  return ids.size ? "&exclude=" + encodeURIComponent([...ids].join(",")) : "";
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const pct = x => Math.round((x||0)*100);
+const masteryColor = m => m>=0.74?"var(--ok)":(m>=0.4?"var(--warn)":"var(--low)");
+
+/* ---- event log ---- */
+function log(method, path, status, note){
+  const t = new Date().toLocaleTimeString();
+  const cls = status>=400?"err":(status?"ok":"");
+  const line = `<div class="ln">${t}  <span class="mth">${method}</span> ${esc(path)}` +
+               (status?`  <span class="${cls}">${status}</span>`:"") + (note?`  ${esc(note)}`:"") + `</div>`;
+  $("#log").insertAdjacentHTML("afterbegin", line);
+}
+
+/* ---- API helper (adds the learner header, logs every call) ---- */
+async function api(path, {method="GET", body=null}={}){
+  const headers = {"Content-Type":"application/json"};
+  if(LEARNER) headers["X-Learner-Id"] = LEARNER;
+  let res, data=null;
+  try{
+    res = await fetch(API+path, {method, headers, body: body?JSON.stringify(body):null});
+  }catch(e){ log(method, path, 0, "network error — is the backend running?"); throw e; }
+  try{ data = await res.json(); }catch(e){ data = null; }
+  log(method, path, res.status, res.ok?"":(data&&data.detail?JSON.stringify(data.detail):""));
+  if(!res.ok) throw Object.assign(new Error("http "+res.status), {status:res.status, data});
+  return data;
+}
+
+/* ---- learner: persist across reloads, reset on demand ---- */
+async function ensureLearner(){
+  let id = localStorage.getItem("vl_learner");
+  if(!id){
+    const email = "console-"+Math.random().toString(36).slice(2,10)+"@test.com";
+    const r = await api("/auth/dev-login", {method:"POST", body:{email}});
+    id = r.learner_id; localStorage.setItem("vl_learner", id);
+  }
+  LEARNER = id;
+  $("#who").textContent = id.slice(0,8);
+}
+$("#reset").onclick = async () => {
+  localStorage.removeItem("vl_learner"); LEARNER=null;
+  SKIPPED = new Set(); LAST_ITEM = null;
+  await ensureLearner(); await refreshAll();
+  log("INFO","new learner created",0,"progress reset");
+};
+
+/* ---- render: the learning session ---- */
+function renderSession(p){
+  CURRENT = p;
+  const box = $("#session");
+  if(p.status==="done" || p.status==="no_items"){
+    box.innerHTML = `<div class="crumb">SECTION ${esc(EXAM)}</div>
+      <div class="stem" style="font-size:16px;color:var(--text-2)">${esc(p.message||"Nothing to do here.")}</div>
+      <button class="btn brand" onclick="loadNext()">try again</button>`;
+    return;
+  }
+  const q = p.question;
+  LAST_ITEM = q.item_id;
+  const modeCls = p.mode==="revise"?"revise":"learn";
+  let answerHTML;
+  if(q.options && q.options.length){
+    answerHTML = `<div class="opts">` + q.options.map(o =>
+      `<button class="opt" onclick="answer(this, ${JSON.stringify(o).replace(/"/g,'&quot;')})">${esc(o)}</button>`
+    ).join("") + `</div>`;
+  }else{
+    answerHTML = `<div class="tita"><input id="tita" placeholder="type your answer…"
+      onkeydown="if(event.key==='Enter')answer(null, document.getElementById('tita').value)">
+      <button class="btn brand" onclick="answer(null, document.getElementById('tita').value)">submit</button></div>`;
+  }
+  const theory = p.theory ? `<details class="theory" open><summary>Theory · first time on this concept</summary>
+      <div class="body">${esc(p.theory)}</div></details>` : "";
+  box.innerHTML = `
+    <div class="crumb">${esc(p.section||EXAM)} › <b>${esc(p.topic.name)}</b> › ${esc(p.concept.name)}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <span class="badge ${modeCls}">${esc(p.mode)}</span>
+      <span style="font-family:var(--f-mono);font-size:11px;color:var(--text-4)">${esc(q.item_id)} · ${esc(q.format)}</span>
+    </div>
+    <div class="stem">${esc(q.stem)}</div>
+    ${answerHTML}
+    <div class="rationale">${esc(p.rationale||"")}</div>
+    ${theory}
+    <div id="fb"></div>`;
+}
+
+/* ---- answer ---- */
+async function answer(btn, given){
+  if(!CURRENT || !CURRENT.question) return;
+  document.querySelectorAll(".opt,.tita input,.tita button").forEach(e=>e.disabled=true);
+  let out;
+  try{ out = await api("/learn/answer", {method:"POST",
+        body:{item_id: CURRENT.question.item_id, answer_given: given, response_time_ms: 1500}}); }
+  catch(e){ return; }
+  // mark the chosen option
+  if(btn){ btn.classList.add(out.correct?"correct":"wrong"); }
+  renderFeedback(out);
+  refreshMap();          // mastery/locks may have changed
+}
+
+function bar(k, v){
+  return `<div class="metric"><span class="k">${k}</span>
+    <div class="track"><i style="width:${pct(v)}%"></i></div>
+    <span class="v">${(v||0).toFixed(2)}</span></div>`;
+}
+function renderFeedback(o){
+  const edgePos = ((o.edge - (-2)) / 4) * 100;   // -2..2 -> 0..100%
+  const tags = [];
+  if(o.mastered) tags.push(`<span class="badge ok">mastered</span>`);
+  if(o.due_for_review) tags.push(`<span class="badge revise">due review</span>`);
+  $("#fb").innerHTML = `
+    <div class="fb">
+      <div class="verdict ${o.correct?"right":"no"}">${o.correct?"✓ Correct":"✗ Not quite"}</div>
+      ${o.solution?`<div class="soln">${esc(o.solution)}</div>`:""}
+      <div class="metrics">
+        ${bar("P", o.breakdown.P)}${bar("D", o.breakdown.D)}${bar("M", o.breakdown.M)}
+      </div>
+      <div class="mline">
+        <span class="mstat">mastery <b>${pct(o.mastery)}%</b></span>
+        <span class="mstat">attempts <b>${o.attempts}</b></span>
+        ${tags.join("")}
+      </div>
+      <div class="edge" style="margin-top:14px">edge
+        <div class="ladder"><b style="left:${edgePos}%"></b></div>
+        <span style="color:var(--text-2)">${o.edge.toFixed(1)}</span><span>(−2…2)</span></div>
+      <div style="margin-top:18px"><button class="btn brand" onclick="loadNext()">next question →</button></div>
+    </div>`;
+}
+
+/* ---- next ---- */
+async function loadNext(){
+  try{ renderSession(await api(`/learn/next?exam=${encodeURIComponent(EXAM)}${excludeParam()}`)); }
+  catch(e){
+    $("#session").innerHTML = `<div class="empty">No content for <b>${esc(EXAM)}</b> in the backend yet.
+      Seed it or import questions via <a href="/docs" target="_blank">/docs</a>.</div>`;
+  }
+}
+/* skip: permanently drop the current item for this session, then fetch a different one */
+function skipCurrent(){
+  if(CURRENT && CURRENT.question){
+    SKIPPED.add(CURRENT.question.item_id);
+    log("INFO","skipped "+CURRENT.question.item_id,0,SKIPPED.size+" skipped this session");
+  }
+  loadNext();
+}
+$("#skip").onclick = skipCurrent;
+
+/* ---- map ---- */
+async function refreshMap(){
+  let m;
+  try{ m = await api(`/learn/map?exam=${encodeURIComponent(EXAM)}`); }
+  catch(e){
+    $("#map").innerHTML = `<div class="empty">No map for ${esc(EXAM)} — exam not in backend.</div>`;
+    $("#recBanner").innerHTML=""; return;
+  }
+  const rec = (m.topics||[]).find(t=>t.recommended);
+  $("#recBanner").innerHTML = rec
+    ? `<div class="rec-banner">▸ engine recommends <b>${esc(rec.name)}</b> next</div>` : "";
+  if(!m.topics || !m.topics.length){ $("#map").innerHTML = `<div class="empty">No topics yet.</div>`; return; }
+  $("#map").innerHTML = m.topics.map(t=>{
+    const thr = m.mastery_threshold || 0.74;
+    const need = Math.round(thr*100);
+    const col = t.locked ? "var(--lock)" : masteryColor(t.mastery);
+    const state = t.locked ? `<span class="badge lock">locked</span>`
+                : (t.recommended ? `<span class="badge learn">next</span>` : `${pct(t.mastery)}%`);
+    const cons = (t.concepts||[]).map(c=>{
+      const ccol = masteryColor(c.mastery);
+      const pills = [];
+      if(c.locked) pills.push(`<span class="pill lk">🔒</span>`);
+      if(c.mastered) pills.push(`<span class="pill m">M</span>`);
+      else if(c.learned) pills.push(`<span class="pill l">L</span>`);
+      if(c.due_for_review) pills.push(`<span class="pill d">due</span>`);
+      // ZPD line: show each prerequisite, its mastery, and whether it clears the threshold
+      const zpd = (c.prereqs_detail && c.prereqs_detail.length)
+        ? `<div class="zpd ${c.locked?'blocked':'ok'}">${c.locked?'🔒 blocked — ':'ZPD — '}needs `
+          + c.prereqs_detail.map(p =>
+              `${esc(p.name)} <b>${pct(p.mastery)}%</b>${p.met?' ✓':` / need ${need}%`}`
+            ).join(' · ') + `</div>`
+        : '';
+      return `<div class="con ${c.locked?'locked':''}">
+        <div><div class="cn">${esc(c.name)}</div></div>
+        <div class="cmeter"><i style="width:${pct(c.mastery)}%;background:${ccol}"></i></div>
+        <div class="cmeta">${pills.join("")}<span>e${c.edge>=0?"+":""}${c.edge}</span><span>·${c.attempts}a</span></div>
+        ${zpd}
+      </div>`;
+    }).join("");
+    // topic-level prereqs (rare in this data, but show them when present)
+    const tzpd = (t.prereqs_detail && t.prereqs_detail.length)
+      ? `<div class="zpd ${t.locked?'blocked':'ok'}" style="padding:6px 12px">${t.locked?'🔒 ':''}topic needs `
+        + t.prereqs_detail.map(p=>`${esc(p.name)} <b>${pct(p.mastery)}%</b>${p.met?' ✓':` / need ${need}%`}`).join(' · ') + `</div>`
+      : '';
+    return `<div class="topic ${t.locked?"locked":""}" data-id="${esc(t.id)}">
+      <div class="row" ${t.locked?"":'onclick="this.parentNode.classList.toggle(\'open\')"'}>
+        <span class="tdot" style="background:${col}"></span>
+        <span class="tn">${esc(t.name)}</span>
+        <span class="tmeter"><i style="width:${pct(t.mastery)}%;background:${col}"></i></span>
+        <span class="tstate">${state}</span>
+      </div>
+      <div class="concepts">${tzpd}${cons||'<div class="empty">no concepts</div>'}</div>
+    </div>`;
+  }).join("");
+}
+
+async function refreshReviews(){
+  let r;
+  try{ r = await api(`/learn/reviews?exam=${encodeURIComponent(EXAM)}`); }
+  catch(e){ $("#reviews").innerHTML = `<div class="empty">—</div>`; return; }
+  if(!r.due || !r.due.length){ $("#reviews").innerHTML = `<div class="empty">nothing due — all memory traces fresh</div>`; return; }
+  $("#reviews").innerHTML = r.due.map(d=>`<div class="due">
+    <span>${esc(d.name)} <span style="color:var(--text-4)">· ${esc(d.topic)}</span></span>
+    <span style="font-family:var(--f-mono);font-size:11px;color:var(--warn)">mem ${pct(d.memory)}%</span></div>`).join("");
+}
+
+async function refreshAll(){ await Promise.all([loadNext(), refreshMap(), refreshReviews()]); }
+
+/* ---- exam switch ---- */
+$("#seg").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-exam]"); if(!b) return;
+  [...$("#seg").children].forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+  EXAM = b.dataset.exam; refreshAll();
+});
+$("#refresh").onclick = ()=>{ refreshMap(); refreshReviews(); };
+$("#clearlog").onclick = ()=>{ $("#log").innerHTML=""; };
+
+/* ---- boot ---- */
+(async ()=>{ await ensureLearner(); await refreshAll(); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1856 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vettalume — Learn, Practice &amp; Mocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..400&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== FRIEND BASE (verbatim) ===== */
+:root{
+  --ink:#090B0F;
+  --ink-2:#0C0F14;
+  --panel:#12151C;
+  --panel-2:#161A22;
+  --panel-3:#1B202A;
+  --line:#262B35;
+  --line-soft:#1C212B;
+  --text:#F3F0E9;
+  --text-2:#9BA1AD;
+  --text-3:#666C77;
+  --text-4:#454B55;
+
+  --brand:#ECD9A6;        /* champagne — the lume */
+  --varc:#E0A84E;         /* amber  */
+  --dilr:#56B6AE;         /* teal   */
+  --qa:#A18FE0;           /* violet */
+
+  --ok:#69B88C;
+  --warn:#D08A52;
+
+  --maxw:1180px;
+  --r:14px;
+  --r-sm:10px;
+
+  --f-display:"Fraunces",Georgia,serif;
+  --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(1100px 620px at 78% -8%, rgba(224,168,78,0.07), transparent 60%),
+    radial-gradient(900px 520px at 8% 4%, rgba(86,182,174,0.05), transparent 58%),
+    var(--ink);
+  color:var(--text);
+  font-family:var(--f-body);
+  font-size:15px;
+  line-height:1.55;
+  letter-spacing:0.1px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(236,217,166,0.22)}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+/* ---------- header ---------- */
+header.bar{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg, rgba(9,11,15,0.92), rgba(9,11,15,0.66) 70%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.bar-in{display:flex;align-items:center;gap:22px;height:68px}
+.mark{display:flex;align-items:baseline;gap:9px;font-family:var(--f-display);
+  font-weight:400;font-size:23px;letter-spacing:0.3px;color:var(--text);
+  font-optical-sizing:auto;}
+.mark .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);
+  box-shadow:0 0 14px 2px rgba(236,217,166,0.7);align-self:center;margin-right:1px}
+.mark .lume{color:var(--brand);font-style:italic;font-weight:300}
+.spacer{flex:1}
+
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(255,255,255,0.012)}
+.seg button{border:0;background:transparent;color:var(--text-2);
+  font-size:12.5px;font-weight:600;letter-spacing:0.4px;padding:7px 15px;border-radius:999px;
+  transition:color .2s,background .2s}
+.seg button[aria-pressed="true"]{background:var(--panel-3);color:var(--text);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.seg button:hover{color:var(--text)}
+
+/* ---------- greeting ---------- */
+.hello{padding:48px 0 8px}
+.hello .eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:2.4px;
+  text-transform:uppercase;color:var(--text-3);margin-bottom:16px}
+.hello h1{font-family:var(--f-display);font-optical-sizing:auto;
+  font-weight:330;font-size:clamp(30px,5vw,46px);line-height:1.07;margin:0;letter-spacing:-0.4px}
+.hello h1 em{font-style:italic;font-weight:300;color:var(--brand)}
+.hello .sub{color:var(--text-2);max-width:60ch;margin-top:14px;font-size:15.5px}
+
+/* ---------- section scaffold ---------- */
+section.block{padding:46px 0;border-top:1px solid var(--line-soft)}
+section.block:first-of-type{border-top:0}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:26px;flex-wrap:wrap}
+.head .idx{font-family:var(--f-mono);font-size:12px;letter-spacing:2px;color:var(--text-3);
+  display:flex;align-items:center;gap:11px}
+.head .idx .ln{width:30px;height:1px;background:var(--line)}
+.head h2{font-family:var(--f-display);font-optical-sizing:auto;font-weight:380;
+  font-size:clamp(22px,3vw,30px);margin:8px 0 0;letter-spacing:-0.2px}
+.head .lede{color:var(--text-2);font-size:14px;max-width:46ch;text-align:right}
+
+/* ---------- learning grid ---------- */
+.learn{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 1.32fr;gap:16px;align-items:stretch}
+
+.card{background:linear-gradient(180deg,var(--panel),var(--ink-2));
+  border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
+.gcard{padding:20px 18px 22px;display:flex;flex-direction:column}
+.gcard .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.gcard .nm{font-weight:700;font-size:15px;letter-spacing:0.3px}
+.gcard .full{color:var(--text-3);font-size:11px;line-height:1.3;margin-top:3px;min-height:26px}
+.gcard .chip{font-family:var(--f-mono);font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+
+.gauge{position:relative;width:158px;height:128px;margin:6px auto 2px}
+.gauge svg{display:block;width:158px;height:158px;position:absolute;top:-6px;left:0}
+.gauge .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  top:-6px;padding-bottom:18px;pointer-events:none}
+.gauge .val{font-family:var(--f-display);font-optical-sizing:auto;font-weight:340;font-size:46px;line-height:1;
+  letter-spacing:-1px}
+.gauge .ab{font-family:var(--f-mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--text-3);margin-top:5px}
+
+.gstats{margin-top:auto;padding-top:14px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:11px}
+.gstat{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text-2)}
+.gstat b{font-family:var(--f-mono);font-weight:500;color:var(--text);font-size:12.5px}
+.syll{height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden;margin-top:2px}
+.syll i{display:block;height:100%;border-radius:99px}
+
+/* progression chart card */
+.chart-card{padding:20px 22px 16px;display:flex;flex-direction:column;min-width:0}
+.chart-card .chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.chart-card .ctitle{font-weight:600;font-size:14px;letter-spacing:0.2px}
+.chart-card .csub{color:var(--text-3);font-size:11.5px;font-family:var(--f-mono);letter-spacing:0.4px}
+.legend{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+.legend button{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:transparent;
+  border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--text-2);transition:all .18s}
+.legend button .sw{width:9px;height:9px;border-radius:3px}
+.legend button[aria-pressed="false"]{opacity:0.4}
+.legend button:hover{color:var(--text);border-color:var(--text-4)}
+.plot{flex:1;min-height:178px;position:relative;margin-top:6px}
+.plot svg{width:100%;height:100%;display:block;overflow:visible}
+
+/* ---------- sectional mocks ---------- */
+.smocks{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.smock{padding:20px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s,transform .2s}
+.smock:hover{border-color:var(--text-4);transform:translateY(-2px)}
+.smock .sm-top{display:flex;align-items:center;gap:10px}
+.smock .bar{width:3px;height:34px;border-radius:3px}
+.smock .sm-nm{font-weight:700;font-size:16px}
+.smock .sm-sub{color:var(--text-3);font-size:11.5px}
+.smock .rowx{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)}
+.smock .rowx b{font-family:var(--f-mono);color:var(--text);font-weight:500}
+.spark{height:40px}
+.spark svg{width:100%;height:100%;display:block;overflow:visible}
+.start{margin-top:2px;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 14px;background:rgba(255,255,255,0.012);
+  color:var(--text);font-size:13px;font-weight:600;transition:all .2s}
+.start:hover{border-color:var(--brand);background:rgba(236,217,166,0.05)}
+.start .arr{transition:transform .2s}
+.start:hover .arr{transform:translateX(3px)}
+.analyze{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 14px;background:transparent;
+  color:var(--text-2);font-size:12.5px;font-weight:600;transition:all .2s}
+.analyze:hover{border-color:var(--dilr);color:var(--dilr);background:rgba(86,182,174,0.05)}
+.analyze svg{width:15px;height:15px}
+
+/* ---------- full mocks ---------- */
+.full-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.meter{flex:1;min-width:200px;height:6px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),#caa86a);border-radius:99px}
+.full-top .lab{font-family:var(--f-mono);font-size:12px;color:var(--text-2);white-space:nowrap}
+.full-top .lab b{color:var(--text)}
+
+.mockscroll{display:grid;grid-auto-flow:column;grid-auto-columns:128px;gap:10px;overflow-x:auto;
+  padding:4px 2px 16px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.mockscroll::-webkit-scrollbar{height:8px}
+.mockscroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.mchip{scroll-snap-align:start;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:linear-gradient(180deg,var(--panel),var(--ink-2));padding:14px 14px 13px;
+  display:flex;flex-direction:column;gap:9px;min-height:118px;transition:border-color .2s,transform .2s}
+.mchip:hover{border-color:var(--text-4);transform:translateY(-2px)}
+.mchip.live{border-color:rgba(236,217,166,0.45);box-shadow:0 0 0 1px rgba(236,217,166,0.12) inset}
+.mchip .code{font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:0.6px}
+.mchip .st{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-2);margin-top:auto}
+.mchip .sd{width:7px;height:7px;border-radius:50%;flex:none}
+.mchip .score{font-family:var(--f-display);font-weight:360;font-size:30px;line-height:1;letter-spacing:-0.5px}
+.mchip .score small{font-family:var(--f-mono);font-size:11px;color:var(--text-3);font-weight:400;letter-spacing:0}
+.mchip.locked{opacity:0.5}
+.mchip.locked .code{color:var(--text-3)}
+
+.rail{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}
+.rcell{border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(255,255,255,0.012);
+  padding:16px 15px;display:flex;flex-direction:column;gap:8px;text-align:left;color:var(--text);
+  transition:border-color .2s,background .2s,transform .2s}
+.rcell:hover{border-color:var(--text-4);background:rgba(255,255,255,0.025);transform:translateY(-2px)}
+.rcell .ric{width:18px;height:18px;color:var(--brand)}
+.rcell.warnic .ric{color:var(--warn)}
+.rcell .rt{font-weight:600;font-size:13.5px}
+.rcell .rd{color:var(--text-3);font-size:11.5px;line-height:1.35}
+
+footer{border-top:1px solid var(--line-soft);padding:30px 0 48px;color:var(--text-3);font-size:12px}
+footer .fin{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+footer .ft{font-family:var(--f-mono);letter-spacing:0.4px}
+
+/* ---------- gauge card CTA ---------- */
+.open-sec{margin-top:14px;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 13px;background:rgba(255,255,255,0.012);
+  color:var(--text);font-size:12.5px;font-weight:600;transition:all .2s;width:100%}
+.open-sec:hover{border-color:var(--brand);background:rgba(236,217,166,0.05)}
+.open-sec .a{transition:transform .2s}
+.open-sec:hover .a{transform:translateX(3px)}
+
+/* ---------- section view ---------- */
+#sectionView{padding-bottom:10px}
+.sv-top{padding:30px 0 8px}
+.back{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+  background:transparent;color:var(--text-2);border-radius:999px;padding:7px 15px 7px 12px;
+  font-size:13px;font-weight:600;transition:all .2s;margin-bottom:26px}
+.back:hover{color:var(--text);border-color:var(--text-4)}
+.back .a{transition:transform .2s}
+.back:hover .a{transform:translateX(-3px)}
+
+.sv-hero{display:flex;gap:30px;align-items:center;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--panel),var(--ink-2));
+  padding:26px 28px;position:relative;overflow:hidden}
+.sv-hero .gauge{margin:0;flex:none}
+.sv-meta{flex:1;min-width:240px}
+.sv-meta .sk{font-family:var(--f-mono);font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-3)}
+.sv-meta h2{font-family:var(--f-display);font-optical-sizing:auto;font-weight:360;
+  font-size:clamp(26px,4vw,38px);margin:8px 0 2px;letter-spacing:-0.4px}
+.sv-meta .full{color:var(--text-2);font-size:14px;margin-bottom:16px}
+.sv-stats{display:flex;gap:26px;flex-wrap:wrap}
+.sv-stat{display:flex;flex-direction:column;gap:2px}
+.sv-stat .v{font-family:var(--f-mono);font-size:18px;color:var(--text)}
+.sv-stat .k{font-size:11px;color:var(--text-3);letter-spacing:0.4px}
+.sv-syll{margin-top:16px;max-width:340px}
+.sv-syll .row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-2);margin-bottom:6px}
+.sv-syll .row b{font-family:var(--f-mono);color:var(--text)}
+.sv-syll .bar{height:5px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.sv-syll .bar i{display:block;height:100%;border-radius:99px}
+
+.clusters{padding:30px 0 10px;display:flex;flex-direction:column;gap:16px}
+.cluster{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.cl-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line-soft)}
+.cl-bar{width:3px;height:26px;border-radius:3px;flex:none}
+.cl-head .cl-nm{font-weight:700;font-size:15px;letter-spacing:0.2px}
+.cl-head .cl-w{font-family:var(--f-mono);font-size:11px;color:var(--text-3);
+  border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.cl-head .cl-prog{margin-left:auto;display:flex;align-items:center;gap:10px}
+.cl-head .cl-prog .pp{width:90px;height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.cl-head .cl-prog .pp i{display:block;height:100%;border-radius:99px}
+.cl-head .cl-prog .pl{font-family:var(--f-mono);font-size:11px;color:var(--text-2)}
+
+.topic{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line-soft);
+  transition:background .15s}
+.topic:last-child{border-bottom:0}
+.topic:hover{background:rgba(255,255,255,0.018)}
+.topic .tdot{width:8px;height:8px;border-radius:50%;flex:none}
+.topic .tn{font-size:13.5px;font-weight:500;color:var(--text);min-width:0}
+.topic .tmeter{width:74px;height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden;flex:none}
+.topic .tmeter i{display:block;height:100%;border-radius:99px}
+.topic .tstate{font-size:11px;font-family:var(--f-mono);letter-spacing:0.3px;width:84px;flex:none}
+.topic .tspace{flex:1}
+.topic .tbtns{display:flex;gap:7px;flex:none}
+.tbtn{border:1px solid var(--line);background:transparent;color:var(--text-2);border-radius:8px;
+  padding:6px 12px;font-size:12px;font-weight:600;transition:all .18s}
+.tbtn:hover{color:var(--text);border-color:var(--text-4)}
+.tbtn.tl:hover{border-color:var(--brand);color:var(--brand)}
+.tbtn.tp:hover{border-color:var(--dilr);color:var(--dilr)}
+
+/* ---------- topic modal ---------- */
+.mscrim{position:fixed;inset:0;background:rgba(5,6,9,0.66);backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .22s;z-index:80}
+.mscrim.on{opacity:1;pointer-events:auto}
+.modal{position:fixed;z-index:90;top:50%;left:50%;transform:translate(-50%,-46%) scale(.97);
+  width:min(540px,92vw);background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:26px;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+.modal.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.modal .x{position:absolute;top:18px;right:18px;border:1px solid var(--line);background:transparent;
+  color:var(--text-2);width:32px;height:32px;border-radius:8px;font-size:16px;line-height:1}
+.modal .x:hover{color:var(--text);border-color:var(--text-4)}
+.modal .m-tag{font-family:var(--f-mono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-3)}
+.modal h3{font-family:var(--f-display);font-weight:360;font-size:25px;margin:7px 0 12px;letter-spacing:-0.3px;max-width:90%}
+.m-mastery{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-2);margin-bottom:20px}
+.m-mastery .mm{width:130px;height:5px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.m-mastery .mm i{display:block;height:100%;border-radius:99px}
+.m-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-card{border:1px solid var(--line);border-radius:var(--r-sm);padding:16px;background:var(--panel)}
+.m-card .mc-h{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;margin-bottom:8px}
+.m-card .mc-h svg{width:17px;height:17px;color:var(--brand)}
+.m-card#mPractice .mc-h svg{color:var(--dilr)}
+.m-card p{color:var(--text-3);font-size:12px;line-height:1.45;margin:0 0 14px}
+.mc-btn{width:100%;border:1px solid var(--line);background:rgba(236,217,166,0.06);color:var(--text);
+  border-radius:8px;padding:9px;font-size:12.5px;font-weight:600;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all .2s}
+.mc-btn:hover{border-color:var(--brand);background:rgba(236,217,166,0.1)}
+.mc-btn.alt{background:rgba(86,182,174,0.06)}
+.mc-btn.alt:hover{border-color:var(--dilr);background:rgba(86,182,174,0.1)}
+
+/* ---------- analysis modal ---------- */
+.a-sub{color:var(--text-2);font-size:13px;margin:0 0 18px;max-width:42ch}
+.a-list{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;scrollbar-width:thin}
+.a-list::-webkit-scrollbar{width:8px}
+.a-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.aset{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:13px 15px;background:var(--panel);text-align:left;color:var(--text);transition:all .18s;width:100%}
+.aset:hover{border-color:var(--dilr);background:rgba(86,182,174,0.04);transform:translateY(-1px)}
+.aset .ac{font-family:var(--f-mono);font-size:13px;font-weight:500;flex:none}
+.aset .ad{font-size:11.5px;color:var(--text-3)}
+.aset .asp{flex:1}
+.aset .asc{font-family:var(--f-display);font-weight:360;font-size:22px;line-height:1;letter-spacing:-0.5px}
+.aset .asc small{font-family:var(--f-mono);font-size:10px;color:var(--text-3);letter-spacing:0;font-weight:400}
+.aset .ago{color:var(--text-3);transition:transform .18s;flex:none}
+.aset:hover .ago{transform:translateX(3px);color:var(--dilr)}
+
+.a-back{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:transparent;
+  color:var(--text-2);border-radius:999px;padding:6px 13px 6px 10px;font-size:12px;font-weight:600;
+  transition:all .2s;margin-bottom:14px}
+.a-back:hover{color:var(--text);border-color:var(--text-4)}
+.a-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.a-stat{border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;background:var(--panel)}
+.a-stat .v{font-family:var(--f-display);font-weight:360;font-size:24px;line-height:1;letter-spacing:-0.5px}
+.a-stat .k{font-size:11px;color:var(--text-3);margin-top:5px}
+.a-diff{border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 15px;background:var(--panel);margin-bottom:12px}
+.a-diff .h{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:11px}
+.a-drow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.a-drow:last-child{margin-bottom:0}
+.a-drow .lab{width:58px;color:var(--text-3);flex:none}
+.a-drow .bar{flex:1;height:5px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.a-drow .bar i{display:block;height:100%;border-radius:99px}
+.a-drow .pc{font-family:var(--f-mono);width:38px;text-align:right;color:var(--text);flex:none}
+.a-weak{border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 15px;
+  background:rgba(208,138,82,0.05)}
+.a-weak .h{font-family:var(--f-mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--warn);margin-bottom:7px}
+.a-weak .t{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.a-weak .d{font-size:12px;color:var(--text-3)}
+
+
+@media(max-width:980px){
+  .learn{grid-template-columns:repeat(2,1fr)}
+  .chart-card{grid-column:1 / -1}
+  .rail{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .topic{flex-wrap:wrap;gap:9px}
+  .topic .tspace{display:none}
+  .topic .tn{flex:1 1 100%;order:-1}
+  .topic .tbtns{margin-left:auto}
+  .cl-head{flex-wrap:wrap}
+  .cl-head .cl-prog{margin-left:0;width:100%}
+  .m-cards{grid-template-columns:1fr}
+  .a-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .wrap{padding:0 18px}
+  header.bar .bar-in{height:auto;flex-wrap:wrap;gap:10px;padding:11px 0}
+  .mark{font-size:20px}
+  .spacer{display:none}
+  .seg{order:3;flex:1 1 100%;justify-content:center}
+  .seg button{flex:1}
+  .learn{grid-template-columns:1fr}
+  .smocks{grid-template-columns:1fr}
+  .head .lede{text-align:left}
+  .rail{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+
+/* ===== ADDED SCREENS ===== */
+/* ===================== ADDED SCREENS ===================== */
+
+/* generic page intro */
+.pg{padding:30px 0 8px}
+.pg .back{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;
+  color:var(--text-2);border-radius:999px;padding:7px 15px 7px 12px;font-size:13px;font-weight:600;transition:all .2s;margin-bottom:22px}
+.pg .back:hover{color:var(--text);border-color:var(--text-4)}
+.pg .sk{font-family:var(--f-mono);font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-3)}
+.pg h2{font-family:var(--f-display);font-optical-sizing:auto;font-weight:360;font-size:clamp(26px,4vw,38px);
+  margin:8px 0 4px;letter-spacing:-0.4px}
+.pg .full{color:var(--text-2);font-size:14px;max-width:62ch}
+
+/* badges */
+.badge{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.badge.rec{color:#0C0F14;background:var(--brand);font-weight:600}
+.badge.lock{color:var(--text-3);border:1px solid var(--line)}
+.badge.next{color:var(--dilr);border:1px solid rgba(86,182,174,.4)}
+.badge.done{color:var(--ok);border:1px solid rgba(105,184,140,.4)}
+
+/* cluster + topic rows in a section */
+.cluster .topic.locked{opacity:.55}
+.topic.locked:hover{background:transparent}
+.topic .trec{margin-left:8px}
+.topic-clickable{cursor:pointer}
+
+/* subtopic rows */
+.sub-row{display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--line-soft);transition:background .15s}
+.sub-row:last-child{border-bottom:0}
+.sub-row:hover{background:rgba(255,255,255,.015)}
+.sub-row .sdot{width:8px;height:8px;border-radius:50%;flex:none}
+.sub-row .sn{font-weight:600;font-size:14px;min-width:0}
+.sub-row .ssp{flex:1}
+.sub-row .smeter{width:84px;height:4px;border-radius:99px;background:var(--panel-3);overflow:hidden;flex:none}
+.sub-row .smeter i{display:block;height:100%;border-radius:99px}
+.sub-row .sstate{font-family:var(--f-mono);font-size:11px;width:86px;flex:none}
+.sub-row .sb{display:flex;gap:7px;flex:none}
+.tbtn.disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
+.tbtn.tr:hover{border-color:var(--qa);color:var(--qa)}
+
+/* theory */
+.theory{max-width:760px;margin-top:6px}
+.theory p{color:var(--text-2);font-size:14.5px;line-height:1.72;margin:0 0 14px}
+.theory h4{font-family:var(--f-display);font-weight:400;font-size:18px;margin:22px 0 8px;color:var(--text)}
+.theory .ex{border-left:2px solid var(--brand);background:rgba(236,217,166,.05);padding:13px 17px;
+  border-radius:0 10px 10px 0;font-size:13.5px;color:var(--text);margin:0 0 16px;line-height:1.6}
+.theory .ex b{color:var(--brand)}
+.theory .ex code{font-family:var(--f-mono);font-size:12.5px;color:var(--brand)}
+
+.bigbtn{margin-top:18px;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--brand);
+  background:rgba(236,217,166,.08);color:var(--text);border-radius:10px;padding:13px 22px;font-size:14px;
+  font-weight:600;transition:all .2s}
+.bigbtn:hover{background:rgba(236,217,166,.14)}
+.bigbtn.teal{border-color:var(--dilr);background:rgba(86,182,174,.08)}
+.bigbtn.teal:hover{background:rgba(86,182,174,.14)}
+.bigbtn .a{transition:transform .2s}
+.bigbtn:hover .a{transform:translateX(3px)}
+
+/* quiz */
+.qwrap{max-width:680px;margin:0 auto}
+.qbar{display:flex;align-items:center;gap:16px;margin:6px 0 24px}
+.qprog{font-family:var(--f-mono);font-size:12px;color:var(--text-2);white-space:nowrap}
+.qtrack{flex:1;height:5px;background:var(--panel-3);border-radius:99px;overflow:hidden}
+.qtrack i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
+.timer{font-family:var(--f-mono);font-size:14px;color:var(--text);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.timer .pls{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pls 1.4s infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.25}}
+
+.qcard{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--ink-2));padding:26px 28px}
+.qmeta{font-family:var(--f-mono);font-size:11px;color:var(--text-3);letter-spacing:.5px;margin-bottom:12px;display:flex;gap:12px}
+.qmeta .dchip{padding:2px 8px;border-radius:6px;border:1px solid var(--line)}
+.qstem{font-family:var(--f-display);font-optical-sizing:auto;font-weight:360;font-size:21px;line-height:1.4;margin-bottom:22px;color:var(--text)}
+.opt{display:flex;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);
+  border-radius:11px;padding:14px 18px;margin-bottom:10px;color:var(--text);font-size:15px;transition:all .14s;gap:13px}
+.opt:hover:not(:disabled){border-color:var(--text-4);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt .k{font-family:var(--f-mono);font-size:12px;color:var(--text-3);width:16px;flex:none}
+.opt.correct{border-color:var(--ok);background:rgba(105,184,140,.1)}
+.opt.correct .k{color:var(--ok)}
+.opt.wrong{border-color:var(--warn);background:rgba(208,138,82,.1)}
+.opt.wrong .k{color:var(--warn)}
+.opt.dim{opacity:.45}
+.fb{margin-top:6px;border-radius:11px;padding:14px 18px;font-size:13.5px;line-height:1.55}
+.fb.ok{background:rgba(105,184,140,.08);border:1px solid rgba(105,184,140,.3)}
+.fb.no{background:rgba(208,138,82,.08);border:1px solid rgba(208,138,82,.3)}
+.fb .fh{font-family:var(--f-mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.fb.ok .fh{color:var(--ok)} .fb.no .fh{color:var(--warn)}
+.fb .sol{color:var(--text-2)}
+.qfoot{display:flex;justify-content:flex-end;margin-top:18px}
+.nextbtn{border:1px solid var(--brand);background:rgba(236,217,166,.08);color:var(--text);border-radius:10px;
+  padding:11px 22px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.nextbtn:hover{background:rgba(236,217,166,.14)}
+
+/* revise live mastery */
+.live-mast{display:flex;align-items:center;gap:12px;font-family:var(--f-mono);font-size:12px;color:var(--text-2);margin-bottom:18px}
+.live-mast .mm{width:140px;height:5px;border-radius:99px;background:var(--panel-3);overflow:hidden}
+.live-mast .mm i{display:block;height:100%;border-radius:99px;transition:width .5s,background .5s}
+.live-mast .delta{font-weight:600}
+
+/* review */
+.rev-q{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:9px;overflow:hidden}
+.rev-h{display:flex;align-items:center;gap:13px;padding:14px 16px;cursor:pointer;user-select:none}
+.rev-mark{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;font-size:12px;flex:none;font-weight:700}
+.rev-mark.ok{background:rgba(105,184,140,.15);color:var(--ok)}
+.rev-mark.no{background:rgba(208,138,82,.15);color:var(--warn)}
+.rev-h .rstem{flex:1;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rev-h .rt{font-family:var(--f-mono);font-size:11px;color:var(--text-3);white-space:nowrap}
+.rev-h .chev{color:var(--text-3);transition:transform .2s}
+.rev-q.open .chev{transform:rotate(90deg)}
+.rev-body{padding:0 16px 16px 52px;display:none;font-size:13px;color:var(--text-2);line-height:1.6}
+.rev-q.open .rev-body{display:block}
+.rev-body .ln{margin-bottom:5px}
+.rev-body .ln b{color:var(--text);font-family:var(--f-mono);font-weight:500}
+.rev-body .sol{margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft);color:var(--text-2)}
+
+/* dashboards */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.dbox{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px 18px}
+.dbox.full{grid-column:1 / -1}
+.dbox h4{font-family:var(--f-mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin:0 0 13px;font-weight:500}
+.dbox .plot{min-height:130px;position:relative}
+.dbox .plot svg{width:100%;height:100%;display:block;overflow:visible}
+.swlist{display:flex;flex-direction:column;gap:9px}
+.swrow{display:flex;align-items:center;gap:11px;font-size:13px}
+.swrow .sd{width:7px;height:7px;border-radius:50%;flex:none}
+.swrow .nm{flex:1;min-width:0}
+.swrow .mv{font-family:var(--f-mono);font-size:12px;color:var(--text);flex:none}
+.rec-list{display:flex;flex-direction:column;gap:9px}
+.rec{display:flex;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 15px;background:var(--panel);font-size:13.5px;line-height:1.5;color:var(--text)}
+.rec .ri{color:var(--brand);flex:none;margin-top:1px}
+.rec.warn{background:rgba(208,138,82,.05)} .rec.warn .ri{color:var(--warn)}
+.rec.good{background:rgba(105,184,140,.05)} .rec.good .ri{color:var(--ok)}
+
+.bigstat{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.bigstat .bs{padding:16px 18px;border-right:1px solid var(--line-soft)}
+.bigstat .bs:last-child{border-right:0}
+.bigstat .v{font-family:var(--f-display);font-weight:340;font-size:28px;line-height:1;letter-spacing:-.5px}
+.bigstat .v small{font-family:var(--f-mono);font-size:12px;color:var(--text-3);letter-spacing:0}
+.bigstat .k{font-size:11px;color:var(--text-3);margin-top:7px}
+
+@media(max-width:760px){
+  .dash-grid{grid-template-columns:1fr}
+  .bigstat{grid-template-columns:1fr 1fr}
+  .bigstat .bs:nth-child(2){border-right:0}
+  .sub-row{flex-wrap:wrap;gap:9px}
+  .sub-row .ssp{display:none}
+  .sub-row .sn{flex:1 1 100%}
+  .sub-row .sb{margin-left:auto}
+}
+
+/* learn-vs-practice split bar */
+.splitbar{display:flex;height:9px;border-radius:99px;overflow:hidden;background:var(--panel-3)}
+.splitseg{height:100%}
+.splitkey{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-size:12px;color:var(--text-2)}
+.splitkey b{color:var(--text);font-family:var(--f-mono);font-weight:500;margin-left:4px}
+.splitkey .sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+/* mock & practice additions */
+.opt.picked{border-color:var(--text-4);background:rgba(255,255,255,.04)}
+.gp{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--qa);background:rgba(161,143,224,.10);color:var(--text);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600;transition:all .2s}
+.gp:hover{background:rgba(161,143,224,.18)}
+.rec .gp{margin-left:auto;flex:none}
+.rec-actions{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.refresh-btn{border:1px solid var(--line);background:transparent;color:var(--text-2);border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:600;display:inline-flex;gap:7px;align-items:center}
+.refresh-btn:hover{color:var(--text);border-color:var(--text-4)}
+.readygauge{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0}
+.readygauge .rv{font-family:var(--f-display);font-weight:340;font-size:34px;letter-spacing:-.5px}
+.readygauge .rl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3)}
+.tbtn.tl:hover{border-color:var(--brand);color:var(--brand)}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap bar-in">
+    <div class="mark"><span class="dot"></span>Vetta<span class="lume">lume</span></div>
+    <div class="spacer"></div>
+    <div class="seg" role="group" aria-label="Choose exam">
+      <button data-exam="CAT" aria-pressed="true">CAT</button>
+      <button data-exam="GMAT" aria-pressed="false">GMAT</button>
+      <button data-exam="GRE" aria-pressed="false">GRE</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div id="view"></div>
+  <footer><div class="wrap fin"><span class="ft">VETTALUME · adaptive prep for CAT · GMAT · GRE</span><span class="ft">prototype</span></div></footer>
+</main>
+<script>
+"use strict";
+/* =========================================================================
+   Vettalume — adaptive Learning & Practice (Section > Topic > Subtopic)
+   ========================================================================= */
+
+/* ---------------- engine (from the adaptive-engine reference) ---------------- */
+const SIG = x => 1/(1+Math.exp(-x));
+const mult = d => SIG(d-3)+0.5;                       // difficulty multiplier (eq6/8b)
+const H = 0.74;                                       // mastery threshold
+function performance(seqC, beta=0.8, P0=0.5){let P=P0;for(const C of seqC)P=beta*P+(1-beta)*C;return P;} // eq8a
+function diffScore(log){let n=0,den=0;for(const a of log){n+=a.C*mult(a.d);den+=mult(a.d);}return den?n/den:0;} // eq8b
+function memStrength(log){                            // eq9/10, simplified: corrects this session are "fresh"
+  const corr=log.filter(a=>a.C===1);
+  if(!corr.length) return 0;
+  // recency: attempts carry a "sessionsAgo"; fresh practice -> ~1
+  let s=0; corr.forEach((a,i)=>{ s+=Math.exp(-(a.ago||0)/(10*(i+1))); });
+  return s/corr.length;
+}
+function masteryOf(log){
+  if(!log.length) return 0;
+  const P=performance(log.map(a=>a.C));
+  const D=diffScore(log);
+  const M=memStrength(log);
+  return 0.40*P+0.30*D+0.30*M;
+}
+function selectionWeight(log){                        // eq1->2 : mean reward (learning progress)
+  if(log.length<2) return 0.2;
+  const cs=log.map(a=>a.C*mult(a.d)), L=4; let rs=[];
+  for(let k=1;k<=cs.length;k++){
+    let seq=cs.slice(0,k); seq = seq.length<L ? Array(L-seq.length).fill(0).concat(seq) : seq.slice(-L);
+    const h=L/2; rs.push(seq.slice(h).reduce((a,b)=>a+b,0)/h - seq.slice(0,h).reduce((a,b)=>a+b,0)/h);
+  }
+  return rs.reduce((a,b)=>a+b,0)/rs.length;
+}
+
+/* ---------------- content tree ---------------- */
+// helper builders
+const S=(id,name,qtype,theory)=>({id,name,qtype,theory});
+const T=(id,name,qtype,subs,prereq)=>({id,name,qtype,subs,prereq:prereq||null});
+
+const AVG_THEORY={
+  simple:[
+    "The <b>average</b> (arithmetic mean) of a set of values is their total divided by how many values there are.",
+    "<code>average = (sum of all values) ÷ (number of values)</code>",
+    "So for 4, 8, 6 → (4 + 8 + 6) ÷ 3 = 18 ÷ 3 = <b>6</b>. Notice the average always sits between the smallest and largest value."
+  ],
+  weighted:[
+    "When groups of <b>different sizes</b> are combined, each group's average counts in proportion to its size — you cannot just average the two averages.",
+    "<code>overall = (n₁·a₁ + n₂·a₂) ÷ (n₁ + n₂)</code>",
+    "20 boys averaging 60 and 30 girls averaging 70 → (20·60 + 30·70) ÷ 50 = 3300 ÷ 50 = <b>66</b>, not 65."
+  ],
+  speed:[
+    "<b>Average speed = total distance ÷ total time</b>. It is NOT the average of the two speeds.",
+    "For the same distance covered at two speeds, average speed is the harmonic mean: <code>2·s₁·s₂ ÷ (s₁ + s₂)</code>.",
+    "Going 60 km/h and returning 40 km/h → 2·60·40 ÷ 100 = 4800 ÷ 100 = <b>48 km/h</b>, not 50."
+  ],
+  change:[
+    "When a value is added to or removed from a group, the <b>total</b> changes, and the average shifts with it.",
+    "<code>new total = old average × old count ± value</code>, then divide by the new count.",
+    "If the average of 10 people is 30 and the new average becomes 32 when one joins, that person's value = 32·11 − 30·10 = 352 − 300 = <b>52</b>."
+  ]
+};
+
+const QA_CLUSTERS=[
+ {cluster:"Arithmetic", topics:[
+   T("averages","Averages","avg",[
+     S("avg-simple","Simple Averages","avg-simple",AVG_THEORY.simple),
+     S("avg-weighted","Weighted Averages","avg-weighted",AVG_THEORY.weighted),
+     S("avg-speed","Average Speed","avg-speed",AVG_THEORY.speed),
+     S("avg-change","Change in Average","avg-change",AVG_THEORY.change),
+   ]),
+   T("percent","Percentages","percent",[
+     S("pct-basic","Percentage Basics","percent"),
+     S("pct-change","Percentage Change","percent"),
+     S("pct-app","Application of Percentages","percent"),
+   ]),
+   T("ratio","Ratio & Proportion","ratio",[
+     S("ratio-basic","Basic Ratios","ratio"),
+     S("ratio-prop","Proportion","ratio"),
+     S("ratio-part","Partnership & Sharing","ratio"),
+   ]),
+   T("mixtures","Mixtures & Alligations","mixture",[
+     S("mix-two","Two-mixture problems","mixture"),
+     S("mix-allig","Alligation rule","mixture"),
+   ],["ratio"]),
+   T("profit","Profit & Loss","profit",[
+     S("pl-basic","Profit, Loss & Markup","profit"),
+     S("pl-discount","Discount problems","profit"),
+   ]),
+   T("tsd","Time, Speed & Distance","speed2",[
+     S("tsd-basic","Speed-Time-Distance","speed2"),
+     S("tsd-rel","Relative Speed","speed2"),
+   ]),
+ ]},
+ {cluster:"Algebra", topics:[
+   T("linear","Linear Equations","linear",[
+     S("lin-one","One Variable","linear"),
+     S("lin-two","Two Variables","linear"),
+   ]),
+   T("quad","Quadratic Equations","quad",[
+     S("quad-roots","Roots & Factoring","quad"),
+     S("quad-nature","Nature of Roots","quad"),
+   ],["linear"]),
+   T("ineq","Inequalities","numeric",[
+     S("ineq-basic","Linear Inequalities","numeric"),
+   ]),
+ ]},
+ {cluster:"Number System", topics:[
+   T("divis","Divisibility & Remainders","remainder",[
+     S("rem-basic","Remainders","remainder"),
+     S("rem-div","Divisibility Rules","remainder"),
+   ]),
+   T("hcflcm","HCF & LCM","hcflcm",[
+     S("hl-basic","HCF & LCM basics","hcflcm"),
+   ]),
+ ]},
+ {cluster:"Modern Maths", topics:[
+   T("pnc","Permutation & Combination","pnc",[
+     S("pnc-perm","Permutations","pnc"),
+     S("pnc-comb","Combinations","pnc"),
+   ]),
+   T("prob","Probability","prob",[
+     S("prob-basic","Basic Probability","prob"),
+   ]),
+ ]},
+];
+
+// compact trees for other sections / exams (concept-question driven)
+function conceptCluster(name, items){
+  return {cluster:name, topics: items.map(([id,nm,subs])=>T(id,nm,"concept", subs.map((s,i)=>S(id+"-"+i, s, "concept")))) };
+}
+const VARC_CLUSTERS=[
+  conceptCluster("Reading Comprehension",[["rc","Reading Comprehension",["Main idea & purpose","Inference & tone","Structure & detail"]]]),
+  conceptCluster("Verbal Ability",[["para","Parajumbles & Summary",["Parajumbles","Para summary","Odd one out"]],["vocab","Vocabulary & Usage",["Vocabulary in context","Word usage"]]]),
+];
+const DILR_CLUSTERS=[
+  conceptCluster("Data Interpretation",[["di","Data Interpretation",["Tables & charts","Caselets","Data sufficiency"]]]),
+  conceptCluster("Logical Reasoning",[["lr","Logical Reasoning",["Arrangements","Blood relations","Puzzles"]]]),
+];
+
+const TREE={
+  CAT:{ VARC:VARC_CLUSTERS, DILR:DILR_CLUSTERS, QA:QA_CLUSTERS },
+  GMAT:{
+    Quant:[{cluster:"Arithmetic & Algebra",topics:[
+      T("g-avg","Averages & Statistics","avg",[S("g-avg-s","Averages","avg-simple",AVG_THEORY.simple),S("g-avg-w","Weighted & Mixtures","avg-weighted",AVG_THEORY.weighted)]),
+      T("g-pct","Percentages & Ratios","percent",[S("g-pct-b","Percentages","percent"),S("g-rat","Ratios","ratio")]),
+      T("g-alg","Algebra","linear",[S("g-lin","Linear Equations","linear"),S("g-quad","Quadratics","quad")],null),
+    ]}],
+    Verbal:[conceptCluster("Verbal",[["g-rc","Reading Comprehension",["Main point","Inference","Detail"]],["g-cr","Critical Reasoning",["Strengthen","Weaken","Assumption"]]])],
+    "Data Insights":[conceptCluster("Data Insights",[["g-ds","Data Sufficiency",["Single source","Two-part"]],["g-msr","Multi-source Reasoning",["Tables","Graphics"]]])],
+  },
+  GRE:{
+    Verbal:[conceptCluster("Verbal",[["gr-rc","Reading Comprehension",["Main idea","Inference"]],["gr-tc","Text Completion",["One blank","Two blanks"]],["gr-se","Sentence Equivalence",["Synonym pairs"]]])],
+    Quant:[{cluster:"Quant",topics:[
+      T("gr-arith","Arithmetic","percent",[S("gr-pct","Percentages","percent"),S("gr-rat","Ratios","ratio")]),
+      T("gr-avg","Averages & Data","avg",[S("gr-avg-s","Averages","avg-simple",AVG_THEORY.simple),S("gr-prob","Probability","prob")]),
+      T("gr-alg","Algebra","linear",[S("gr-lin","Equations","linear"),S("gr-quad","Quadratics","quad")]),
+    ]}],
+    Writing:[conceptCluster("Analytical Writing",[["gr-iss","Analyze an Issue",["Position","Examples","Structure"]]])],
+  },
+};
+
+/* ---------------- exam meta (percentile removed) ---------------- */
+const EXAMS={
+  CAT:{diag:"Diagnostic complete · adapted 12 Jun",
+    hero:"Your section ability was set by the diagnostic and is refined as you cover the syllabus. Pick a section, work through its topics, and the path adapts to you.",
+    done:7,best:"68.0",
+    sections:[
+      {key:"VARC",full:"Verbal Ability & Reading Comprehension",c:"#E0A84E",ability:71,syll:58,delta:"+6",series:[40,44,47,52,55,61,66,71],attempted:9,total:24,bestSc:"82%",lastSc:"78%"},
+      {key:"DILR",full:"Data Interpretation & Logical Reasoning",c:"#56B6AE",ability:54,syll:41,delta:"+3",series:[38,40,39,44,46,48,51,54],attempted:5,total:24,bestSc:"61%",lastSc:"57%"},
+      {key:"QA",full:"Quantitative Ability",c:"#A18FE0",ability:82,syll:74,delta:"+9",series:[50,55,58,63,68,72,77,82],attempted:12,total:24,bestSc:"90%",lastSc:"88%"},
+    ]},
+  GMAT:{diag:"Diagnostic complete · adapted 11 Jun",
+    hero:"Your section ability was set by the diagnostic and adjusts as you work the syllabus. Work a section, then validate it on a Focus mock.",
+    done:5,best:"695",
+    sections:[
+      {key:"Quant",full:"Quantitative Reasoning",c:"#A18FE0",ability:78,syll:66,delta:"+7",series:[48,52,55,60,64,69,74,78],attempted:8,total:20,bestSc:"86%",lastSc:"83%"},
+      {key:"Verbal",full:"Verbal Reasoning",c:"#E0A84E",ability:64,syll:52,delta:"+4",series:[42,45,47,50,54,57,61,64],attempted:6,total:20,bestSc:"74%",lastSc:"71%"},
+      {key:"Data Insights",full:"Data Insights",c:"#56B6AE",ability:59,syll:44,delta:"+5",series:[36,40,43,46,49,52,55,59],attempted:4,total:20,bestSc:"68%",lastSc:"64%"},
+    ]},
+  GRE:{diag:"Diagnostic complete · adapted 10 Jun",
+    hero:"Your section ability was set by the diagnostic and tracks the 130–170 scale as you cover the syllabus. Strengthen a section, then confirm it on a mock.",
+    done:4,best:"322",
+    sections:[
+      {key:"Verbal",full:"Verbal Reasoning",c:"#E0A84E",ability:62,syll:55,delta:"+5",series:[40,43,46,49,52,56,59,62],attempted:7,total:18,bestSc:"159",lastSc:"157"},
+      {key:"Quant",full:"Quantitative Reasoning",c:"#A18FE0",ability:80,syll:70,delta:"+6",series:[52,56,60,64,68,72,76,80],attempted:9,total:18,bestSc:"165",lastSc:"163"},
+      {key:"Writing",full:"Analytical Writing",c:"#56B6AE",ability:57,syll:48,delta:"+3",series:[44,45,47,49,51,53,55,57],attempted:3,total:8,bestSc:"4.5",lastSc:"4.0"},
+    ]},
+};
+const WEEKS=["W-7","W-6","W-5","W-4","W-3","W-2","W-1","Now"];
+
+/* ---------------- progress state (in-memory) ---------------- */
+let EXAM="CAT";
+let hidden={};
+const PROG={};   // subKey -> {learned,log,sessions,edge,P,D,M,mastery,learnTime,reviseTime}
+const THIST={};  // topicKey -> [mastery snapshots]
+const subKey=(sec,tid,sid)=>EXAM+"|"+sec+"|"+tid+"|"+sid;
+const topKey=(sec,tid)=>EXAM+"|"+sec+"|"+tid;
+function subState(sec,tid,sid){
+  const k=subKey(sec,tid,sid);
+  if(!PROG[k]) PROG[k]={learned:false,log:[],sessions:[],edge:3,mastery:0,learnTime:0,reviseTime:0};
+  return PROG[k];
+}
+function recomputeSub(st){ st.mastery=masteryOf(st.log); }
+
+function sectionTree(sec){ return (TREE[EXAM]||{})[sec]||[]; }
+function findTopic(sec,tid){ for(const cl of sectionTree(sec)) for(const t of cl.topics) if(t.id===tid) return {t,cl}; return null; }
+function topicMastery(sec,tid){
+  const f=findTopic(sec,tid); if(!f) return 0;
+  const subs=f.t.subs; let s=0; for(const sub of subs) s+=subState(sec,tid,sub.id).mastery; return s/subs.length;
+}
+function topicLearnedAll(sec,tid){const f=findTopic(sec,tid);return f.t.subs.every(sub=>subState(sec,tid,sub.id).learned);}
+function isLocked(sec,tid){
+  const f=findTopic(sec,tid); if(!f||!f.t.prereq) return false;
+  return f.t.prereq.some(p=>topicMastery(sec,p)<H);
+}
+// MAB / ZPD: best topic to do next in a section = highest expected learning gain among unlocked, not-mastered
+function recommendedTopic(sec){
+  let best=null,bestGain=-1;
+  for(const cl of sectionTree(sec)) for(const t of cl.topics){
+    if(isLocked(sec,t.id)) continue;
+    const m=topicMastery(sec,t.id); if(m>=H) continue;
+    // expected gain: room to grow, boosted slightly if already started (momentum)
+    const started=t.subs.some(s=>subState(sec,t.id,s.id).learned);
+    const gain=(H-m)*(started?1.15:1.0);
+    if(gain>bestGain){bestGain=gain;best=t.id;}
+  }
+  return best;
+}
+// within a topic, what to do next (ZPD/MAB): revise weakest learned, else learn next unlearned
+function topicNextAction(sec,tid){
+  const f=findTopic(sec,tid); if(!f) return null;
+  const unlearned=f.t.subs.filter(s=>!subState(sec,tid,s.id).learned);
+  if(unlearned.length) return {mode:"learn",sub:unlearned[0]};
+  // all learned -> pick weakest by mastery (and improvability)
+  let weak=null,wm=2;
+  for(const s of f.t.subs){const st=subState(sec,tid,s.id); if(st.mastery<wm){wm=st.mastery;weak=s;}}
+  return weak && wm<H ? {mode:"revise",sub:weak} : null;
+}
+
+/* ---------------- question generators ---------------- */
+const BENCH={1:40,2:55,3:80,4:110,5:150}; // expected seconds by difficulty
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const fmt=x=>Number.isInteger(x)?String(x):String(Math.round(x*10)/10);
+function opts(ans,dists){
+  const out=[ans];
+  for(const d of dists){if(d>0 && !out.some(v=>Math.abs(v-d)<1e-6)) out.push(d); if(out.length>=4)break;}
+  let p=1;
+  while(out.length<4){const c=ans+p*(Math.random()<.5?1:-1)*ri(1,4); if(c>0&&!out.some(v=>Math.abs(v-c)<1e-6))out.push(c); p++; if(p>40)break;}
+  const arr=out.slice(0,4); shuffle(arr);
+  return {options:arr.map(fmt), correct:arr.findIndex(v=>Math.abs(v-ans)<1e-6)};
+}
+function wrap(stem,ans,dists,sol,d){const o=opts(ans,dists);return {stem,options:o.options,correct:o.correct,sol,d,bench:BENCH[d]};}
+
+const CONCEPTQ=[
+  {d:2,stem:"Choose the option that best completes the sentence: “Despite the setback, the team remained ____ about the launch.”",options:["optimistic","pessimistic","indifferent","resentful"],correct:0,sol:"“Despite the setback” signals contrast, so a positive word is needed — optimistic."},
+  {d:3,stem:"An author argues that remote work boosts productivity, citing one survey of a single company. Which choice most weakens the argument?",options:["The company is highly profitable","A broad multi-industry study found no productivity change","Employees prefer remote work","The survey had 500 respondents"],correct:1,sol:"A broad contradicting study undermines a conclusion drawn from one company."},
+  {d:2,stem:"Which sentence is grammatically correct?",options:["Neither of the answers are right.","Neither of the answers is right.","Neither of the answer is right.","None of the answers is right enough."],correct:1,sol:"“Neither” is singular, so it takes “is”."},
+  {d:3,stem:"In a passage, the author calls a policy “a triumph of optics over substance.” The tone is best described as:",options:["admiring","neutral","critical","nostalgic"],correct:2,sol:"“Optics over substance” is a criticism — the tone is critical."},
+  {d:4,stem:"Select the pair of words that gives the sentence a coherent meaning: “Her argument was ____, relying on facts rather than ____ appeals.”",options:["emotional … logical","rigorous … emotional","vague … factual","biased … personal"],correct:1,sol:"“Facts rather than ___ appeals” needs a contrast: rigorous vs emotional."},
+  {d:3,stem:"Four sentences must form a paragraph. Which is most likely the opening sentence?",options:["This, however, ignores the cost.","Cities have long debated congestion pricing.","Critics raise two objections.","The result was a 20% drop in traffic."],correct:1,sol:"The opener introduces the topic without back-references like “this” or “the result”."},
+];
+function conceptQ(d){const base=CONCEPTQ.filter(q=>Math.abs(q.d-d)<=1);const q=pick(base.length?base:CONCEPTQ);return {stem:q.stem,options:q.options.slice(),correct:q.correct,sol:q.sol,d,bench:BENCH[d]};}
+
+function genQ(qtype,d){
+  d=Math.max(1,Math.min(5,Math.round(d)));
+  switch(qtype){
+    case "avg-simple":{
+      const N=d<=2?3:d<=3?4:5, A=ri(15,55), dels=[]; let s=0;
+      for(let i=0;i<N-1;i++){const x=ri(-Math.min(A-3,12),12);dels.push(x);s+=x;}
+      dels.push(-s); const nums=dels.map(x=>A+x);
+      if(nums.some(x=>x<1)) return genQ(qtype,d);
+      return wrap(`Find the average of: ${nums.join(", ")}.`, A,
+        [Math.round(nums.reduce((a,b)=>a+b,0)), A+1, A-2],
+        `Sum = ${nums.join(" + ")} = ${nums.reduce((a,b)=>a+b,0)}. Average = ${nums.reduce((a,b)=>a+b,0)} ÷ ${N} = ${A}.`, d);
+    }
+    case "avg-weighted":{
+      const n1=ri(2,8),n2=ri(2,8),a1=ri(10,45),a2=ri(46,80);
+      const ans=Math.round((n1*a1+n2*a2)/(n1+n2)*10)/10;
+      return wrap(`A group has ${n1} members averaging ${a1} and ${n2} members averaging ${a2}. Find the overall average.`,
+        ans, [Math.round((a1+a2)/2), ans+2, ans-2],
+        `Total = ${n1}×${a1} + ${n2}×${a2} = ${n1*a1+n2*a2}. Members = ${n1+n2}. Average = ${n1*a1+n2*a2} ÷ ${n1+n2} = ${ans}.`, d);
+    }
+    case "avg-speed":{
+      let s1=ri(20,60),s2=ri(20,60); if(s1===s2)s2+=10;
+      const ans=Math.round(2*s1*s2/(s1+s2)*10)/10;
+      return wrap(`A vehicle goes one way at ${s1} km/h and returns the same distance at ${s2} km/h. Find its average speed.`,
+        ans, [Math.round((s1+s2)/2), ans+3, ans-3],
+        `Equal distances → average speed = 2·s₁·s₂ ÷ (s₁+s₂) = 2·${s1}·${s2} ÷ ${s1+s2} = ${ans} km/h. (Not the plain average ${Math.round((s1+s2)/2)}.)`, d);
+    }
+    case "avg-change":{
+      const n=ri(5,15),A=ri(20,40),inc=ri(1,3),A2=A+inc;
+      const ans=A2*(n+1)-A*n;
+      return wrap(`The average of ${n} numbers is ${A}. When one more number is added, the average becomes ${A2}. Find the added number.`,
+        ans, [A2, A+n*inc, ans-5],
+        `Old total = ${A}×${n} = ${A*n}. New total = ${A2}×${n+1} = ${A2*(n+1)}. Added number = ${A2*(n+1)} − ${A*n} = ${ans}.`, d);
+    }
+    case "percent":{
+      if(Math.random()<0.5){const p=ri(2,18)*5,X=ri(4,40)*5,ans=p*X/100;
+        return wrap(`What is ${p}% of ${X}?`,ans,[X*p/1000? X*(p/10):0,ans+5,ans-5,p],
+          `${p}% of ${X} = ${p}/100 × ${X} = ${ans}.`,d);}
+      const X=ri(2,20)*5,Y=ri(5,25)*5,ans=Math.round(X/Y*1000)/10;
+      return wrap(`${X} is what percent of ${Y}?`,ans,[Math.round(Y/X*1000)/10,ans+5,ans-5],
+        `${X} ÷ ${Y} × 100 = ${ans}%.`,d);
+    }
+    case "ratio":{
+      const a=ri(2,7),b=ri(2,7),sum=a+b,M=sum*ri(8,30),larger=Math.max(a,b);
+      const ans=M*larger/sum;
+      return wrap(`An amount of ${M} is divided in the ratio ${a} : ${b}. Find the larger share.`,
+        ans,[M*Math.min(a,b)/sum, M/2, ans-M/sum],
+        `Total parts = ${a}+${b} = ${sum}. Larger share = ${larger}/${sum} × ${M} = ${ans}.`,d);
+    }
+    case "mixture":{
+      const c1=ri(10,40),c2=ri(50,90),q1=ri(2,8),q2=ri(2,8);
+      const ans=Math.round((c1*q1+c2*q2)/(q1+q2)*10)/10;
+      return wrap(`${q1} litres of ${c1}%-strength solution are mixed with ${q2} litres of ${c2}%-strength solution. Find the resulting strength.`,
+        ans,[Math.round((c1+c2)/2),ans+3,ans-3],
+        `Total active = ${q1}×${c1}% + ${q2}×${c2}%. Strength = (${c1}×${q1} + ${c2}×${q2}) ÷ ${q1+q2} = ${ans}%.`,d);
+    }
+    case "profit":{
+      const cp=ri(4,40)*10, pct=ri(5,40), sp=Math.round(cp*(1+pct/100));
+      if(Math.random()<0.5) return wrap(`An item bought for ₹${cp} is sold for ₹${sp}. Find the profit percent.`,
+        Math.round((sp-cp)/cp*1000)/10,[Math.round((sp-cp)/sp*1000)/10, pct+3, pct-3],
+        `Profit = ${sp}−${cp} = ${sp-cp}. Profit% = (${sp-cp} ÷ ${cp})×100 = ${Math.round((sp-cp)/cp*1000)/10}%.`,d);
+      return wrap(`An item costs ₹${cp} and is sold at a ${pct}% profit. Find the selling price.`,
+        sp,[cp+pct, Math.round(cp*(1-pct/100)), sp+10],
+        `SP = ${cp} × (1 + ${pct}/100) = ₹${sp}.`,d);
+    }
+    case "speed2":{
+      const s=ri(20,80),t=ri(2,9),ans=s*t;
+      if(Math.random()<0.5) return wrap(`A car travels at ${s} km/h for ${t} hours. How far does it go?`,
+        ans,[s+t,Math.round(s/t),ans-s],`Distance = speed × time = ${s} × ${t} = ${ans} km.`,d);
+      const dd=s*t; return wrap(`A car covers ${dd} km at ${s} km/h. How long does it take?`,
+        t,[Math.round(dd/(s+10)*10)/10,t+1,Math.max(1,t-1)],`Time = distance ÷ speed = ${dd} ÷ ${s} = ${t} h.`,d);
+    }
+    case "linear":{
+      const x=ri(2,12),a=ri(2,9),b=ri(1,20),c=a*x+b;
+      return wrap(`Solve for x:  ${a}x + ${b} = ${c}.`,x,[x+1,x-1,Math.round(c/a)],
+        `${a}x = ${c} − ${b} = ${c-b}. x = ${c-b} ÷ ${a} = ${x}.`,d);
+    }
+    case "quad":{
+      const r1=ri(1,9),r2=ri(1,9),b=-(r1+r2),c=r1*r2;
+      return wrap(`One root of  x² ${b<0?"− "+(-b):"+ "+b}x + ${c} = 0  is ${r1}. Find the other root.`,
+        r2,[c,Math.abs(b),r2+1],`Product of roots = ${c}, so other root = ${c} ÷ ${r1} = ${r2}. (Sum of roots = ${-b}.)`,d);
+    }
+    case "remainder":{
+      const div=ri(3,9),q=ri(5,20),r=ri(1,div-1),N=div*q+r;
+      return wrap(`Find the remainder when ${N} is divided by ${div}.`,r,[r+1,div-r,(r+2)%div||1],
+        `${N} = ${div}×${q} + ${r}, so the remainder is ${r}.`,d);
+    }
+    case "hcflcm":{
+      const g=ri(2,9),a=g*ri(2,6),b=g*ri(2,6);
+      const gcd=(x,y)=>y?gcd(y,x%y):x; const G=gcd(a,b),Lc=a*b/G;
+      if(Math.random()<0.5) return wrap(`Find the HCF of ${a} and ${b}.`,G,[Lc,G+1,Math.min(a,b)],
+        `HCF(${a}, ${b}) = ${G}.`,d);
+      return wrap(`Find the LCM of ${a} and ${b}.`,Lc,[G,a+b,Lc-G],`LCM(${a}, ${b}) = ${a}×${b} ÷ HCF(${G}) = ${Lc}.`,d);
+    }
+    case "pnc":{
+      const fact=n=>{let f=1;for(let i=2;i<=n;i++)f*=i;return f;};
+      const n=ri(4,7),r=ri(2,Math.min(4,n));
+      if(Math.random()<0.5){const ans=fact(n)/fact(n-r);
+        return wrap(`In how many ways can ${r} people be arranged from a group of ${n}?  (i.e. ⁿPᵣ)`,ans,
+          [fact(n)/(fact(r)*fact(n-r)),fact(n),n*r],`ⁿPᵣ = ${n}! ÷ (${n}−${r})! = ${ans}.`,d);}
+      const ans=fact(n)/(fact(r)*fact(n-r));
+      return wrap(`In how many ways can ${r} people be chosen from ${n}?  (i.e. ⁿCᵣ)`,ans,
+        [fact(n)/fact(n-r),n*r,ans+2],`ⁿCᵣ = ${n}! ÷ (${r}! · (${n}−${r})!) = ${ans}.`,d);
+    }
+    case "prob":{
+      const tot=ri(6,12),fav=ri(1,tot-1);const g=((x,y)=>{const gg=(a,b)=>b?gg(b,a%b):a;return gg(x,y);})(fav,tot);
+      const ans=Math.round(fav/tot*100)/100;
+      return wrap(`A bag has ${tot} balls, ${fav} of them red. What is the probability of drawing a red ball? (as a decimal)`,
+        ans,[Math.round((tot-fav)/tot*100)/100,ans+0.1,Math.max(0.01,ans-0.1)],
+        `P = favourable ÷ total = ${fav}/${tot} = ${ans}.`,d);
+    }
+    case "numeric": default:{
+      const a=ri(6,30),b=ri(2,12),ans=a*b;
+      return wrap(`Evaluate:  ${a} × ${b}.`,ans,[a+b,a*b-a,ans+b],`${a} × ${b} = ${ans}.`,d);
+    }
+    case "concept": return conceptQ(d);
+  }
+}
+
+/* ---------------- svg helpers ---------------- */
+function gaugeSVG(value,color,id){
+  const r=66,cx=79,cy=79,vis=75,fill=vis*(value/100),fid="g_"+id;
+  return `<svg viewBox="0 0 158 158" aria-hidden="true"><defs>
+    <filter id="${fid}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1B202A" stroke-width="9" pathLength="100" stroke-dasharray="${vis} ${100-vis}" stroke-linecap="round" transform="rotate(135 ${cx} ${cy})"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="9" pathLength="100" stroke-dasharray="0 100" stroke-linecap="round" transform="rotate(135 ${cx} ${cy})" filter="url(#${fid})" style="transition:stroke-dasharray 1s cubic-bezier(.4,0,.2,1)" data-fill="${fill}"/></svg>`;
+}
+function lineSVG(series,color,opt){
+  opt=opt||{}; const w=320,h=140,L=8,R=10,T=12,B=20,n=series.length;
+  const ymin=opt.ymin!==undefined?opt.ymin:Math.min(...series), ymax=opt.ymax!==undefined?opt.ymax:Math.max(...series),rng=(ymax-ymin)||1;
+  const X=i=>L+i/(Math.max(1,n-1))*(w-L-R), Y=v=>T+(1-(v-ymin)/rng)*(h-T-B);
+  const dline=series.map((v,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join(" ");
+  const area=dline+` L ${X(n-1).toFixed(1)} ${h-B} L ${X(0).toFixed(1)} ${h-B} Z`;
+  let tg="";
+  if(opt.target!==undefined){const ty=Y(opt.target);tg=`<line x1="${L}" y1="${ty.toFixed(1)}" x2="${w-R}" y2="${ty.toFixed(1)}" stroke="#A36A1F" stroke-dasharray="3 3"/><text x="${w-R}" y="${(ty-4).toFixed(1)}" text-anchor="end" font-family="'JetBrains Mono'" font-size="8" fill="#C89A55">${opt.tlabel||"target"}</text>`;}
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="lg${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity="0.16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#lg${color.replace('#','')})"/>${tg}<path d="${dline}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${X(n-1).toFixed(1)}" cy="${Y(series[n-1]).toFixed(1)}" r="3" fill="#090B0F" stroke="${color}" stroke-width="2"/></svg>`;
+}
+function diffBarsSVG(rows,color){ // rows: [{lab, pct}]
+  const w=320,h=22*rows.length+8; let g="";
+  rows.forEach((r,i)=>{const y=i*22+6;
+    g+=`<text x="0" y="${y+11}" font-family="'JetBrains Mono'" font-size="11" fill="#9BA1AD">${r.lab}</text>`;
+    g+=`<rect x="60" y="${y+3}" width="200" height="7" rx="3.5" fill="#1B202A"/>`;
+    g+=`<rect x="60" y="${y+3}" width="${(r.pct/100*200).toFixed(1)}" height="7" rx="3.5" fill="${r.pct>=60?color:r.pct>=40?'#E0A84E':'#A8542B'}"/>`;
+    g+=`<text x="268" y="${y+11}" font-family="'JetBrains Mono'" font-size="11" fill="#F3F0E9">${r.pct}%</text>`;});
+  return `<svg viewBox="0 0 ${w} ${h}">${g}</svg>`;
+}
+const COLcat=()=>({VARC:"#E0A84E",DILR:"#56B6AE",QA:"#A18FE0",Quant:"#A18FE0",Verbal:"#E0A84E","Data Insights":"#56B6AE",Writing:"#56B6AE"});
+function secColor(key){return COLcat()[key]||"#ECD9A6";}
+function masteryLabel(m){const v=m*100;if(v>=78)return["Mastered","#69B88C"];if(v>=55)return["On track","#ECD9A6"];if(v>=28)return["Needs work","#D08A52"];return["Not started","#666C77"];}
+function tint(c,a){const map={"#E0A84E":"224,168,78","#56B6AE":"86,182,174","#A18FE0":"161,143,224"};return `rgba(${map[c]||"236,217,166"},${a})`;}
+const esc=s=>String(s).replace(/"/g,"&quot;");
+const fmtT=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+
+/* ---------------- router ---------------- */
+let route={v:"home"};
+let SESS=null, timerInt=null;
+const ROOT=()=>document.getElementById("view");
+function go(r){ if(timerInt){clearInterval(timerInt);timerInt=null;} route=r; render(); window.scrollTo(0,0); }
+
+function render(){
+  const v=route.v;
+  let html="";
+  if(v==="home") html=viewHome();
+  else if(v==="section") html=viewSection(route.sec);
+  else if(v==="topic") html=viewTopic(route.sec,route.tid);
+  else if(v==="theory") html=viewTheory(route.sec,route.tid,route.sid);
+  else if(v==="quiz") html=viewQuiz();
+  else if(v==="review") html=viewReview();
+  else if(v==="subanalysis") html=viewSubAnalysis(route.sec,route.tid,route.sid);
+  else if(v==="revise") html=viewRevise();
+  else if(v==="smArea") html=viewSmArea(route.sec);
+  else if(v==="smAnalysis") html=viewSmAnalysis(route.sec,route.n);
+  else if(v==="fmArea") html=viewFmArea();
+  else if(v==="fmAnalysis") html=viewFmAnalysis(route.n);
+  else if(v==="tpanalysis") html=viewTopicPracticeAnalysis(route.sec,route.tid);
+  ROOT().innerHTML=html;
+  ROOT().classList.remove("detail-anim"); void ROOT().offsetWidth; ROOT().classList.add("detail-anim");
+  // animate gauges
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('#view circle[data-fill]').forEach(c=>c.setAttribute("stroke-dasharray",c.getAttribute("data-fill")+" 100"));
+  }));
+  if((v==="quiz"||v==="revise")&&SESS) startTimer();
+}
+function startTimer(){
+  if(timerInt) clearInterval(timerInt);
+  if(SESS.t0===undefined) SESS.t0=Date.now();
+  const upd=()=>{const el=document.getElementById("timer");if(el)el.textContent=fmtT((Date.now()-SESS.t0)/1000);};
+  upd(); timerInt=setInterval(upd,500);
+}
+
+/* ---------------- HOME ---------------- */
+function viewHome(){
+  const ex=EXAMS[EXAM];
+  let gauges="";
+  ex.sections.forEach((s,i)=>{
+    gauges+=`<div class="card gcard">
+      <div class="top"><div class="nm">${s.key}</div><span class="chip" style="background:${tint(s.c,0.13)};color:${s.c}">${s.delta} ▲</span></div>
+      <div class="full">${s.full}</div>
+      <div class="gauge">${gaugeSVG(s.ability,s.c,"h"+i)}<div class="ctr"><span class="val" style="color:${s.c}">${s.ability}</span><span class="ab">ability</span></div></div>
+      <div class="gstats"><div class="gstat"><span>Syllabus covered</span><b>${s.syll}%</b></div><div class="syll"><i style="width:${s.syll}%;background:${s.c}"></i></div></div>
+      <button class="open-sec" data-go="section" data-sec="${s.key}">Learn &amp; practice <span class="a">→</span></button></div>`;
+  });
+  gauges+=`<div class="card chart-card"><div class="chead"><span class="ctitle">Ability over time</span><span class="csub">last 8 weeks</span></div>
+    <div class="legend" id="legend"></div><div class="plot" id="plot"></div></div>`;
+  // sectional mocks
+  let smocks="";
+  ex.sections.forEach(s=>{smocks+=`<div class="card smock">
+    <div class="sm-top"><span class="bar" style="background:${s.c}"></span><div><div class="sm-nm">${s.key}</div><div class="sm-sub">${s.attempted} of ${s.total} sets done</div></div></div>
+    <div class="rowx"><span>Best</span><b>${s.bestSc}</b></div><div class="rowx"><span>Last attempt</span><b>${s.lastSc}</b></div>
+    <button class="start" data-go="smArea" data-sec="${s.key}">Open ${s.key} mocks <span class="arr">→</span></button></div>`;});
+  // full mocks
+  let chips="";
+  for(let i=1;i<=12;i++){const code="M"+String(i).padStart(3,"0");
+    if(i<=ex.done) chips+=`<div class="card mchip"><div class="code">${code}</div><div class="score">${(60+((i*7)%26)).toFixed(1)}<small>ile</small></div><div class="st"><span class="sd" style="background:var(--ok)"></span>Completed</div></div>`;
+    else if(i===ex.done+1) chips+=`<div class="card mchip live"><div class="code">${code}</div><div class="st" style="color:var(--brand);margin-top:6px"><span class="sd" style="background:var(--brand)"></span>Recommended next</div><div class="score" style="font-size:13px;font-family:var(--f-body);font-weight:600;letter-spacing:0;color:var(--text)">Begin →</div></div>`;
+    else chips+=`<div class="card mchip locked"><div class="code">${code}</div><div class="st"><span class="sd" style="background:var(--text-4)"></span>Locked</div></div>`;}
+  chips+=`<div class="card mchip locked" style="justify-content:center;align-items:center"><div class="code" style="text-align:center">M013<br>—<br>M100</div></div>`;
+
+  setTimeout(()=>{buildLegend(ex);drawPlot(ex);},0);
+  return `<div class="wrap hello"><div class="eyebrow">${ex.diag}</div>
+    <h1>Good evening, Aanya.<br>Here is <em>where you stand</em> today.</h1>
+    <p class="sub">${ex.hero}</p></div>
+    <section class="block"><div class="wrap"><div class="head"><div><div class="idx"><span class="ln"></span>01 · Learning</div><h2>Section ability</h2></div>
+      <div class="lede">Set by your diagnostic, refined as you cover the syllabus. Click in to learn and practise topic by topic.</div></div>
+      <div class="learn">${gauges}</div></div></section>
+    <section class="block"><div class="wrap"><div class="head"><div><div class="idx"><span class="ln"></span>02 · Sectional mocks</div><h2>Drill one section at a time</h2></div>
+      <div class="lede">Each set adapts to your current ability.</div></div><div class="smocks">${smocks}</div></div></section>
+    <section class="block"><div class="wrap"><div class="head"><div><div class="idx"><span class="ln"></span>03 · Full-length mocks</div><h2>The real thing, end to end</h2></div>
+      <div class="lede">M001–M100, unlocked as you progress.</div></div>
+      <div class="full-top"><span class="lab"><b>${ex.done}</b> of 100 attempted</span><div class="meter"><i style="width:${ex.done}%"></i></div><span class="lab">best <b>${ex.best}</b></span></div>
+      <div class="mockscroll">${chips}</div>
+      <div style="margin-top:14px"><button class="bigbtn" data-go="fmArea">Open full mocks &amp; dashboard <span class="a">→</span></button></div></div></section>`;
+}
+function buildLegend(ex){const lg=document.getElementById("legend");if(!lg)return;lg.innerHTML="";
+  ex.sections.forEach(s=>{const b=document.createElement("button");b.setAttribute("aria-pressed",hidden[s.key]?"false":"true");
+    b.innerHTML=`<span class="sw" style="background:${s.c}"></span>${s.key}`;
+    b.addEventListener("click",()=>{hidden[s.key]=!hidden[s.key];b.setAttribute("aria-pressed",hidden[s.key]?"false":"true");drawPlot(ex);});
+    lg.appendChild(b);});}
+function drawPlot(ex){const p=document.getElementById("plot");if(!p)return;
+  const w=560,h=210,L=34,R=14,T=14,B=26,iw=w-L-R,ih=h-T-B,xmax=WEEKS.length-1,ymin=20,ymax=100;
+  const X=i=>L+i/xmax*iw,Y=v=>T+(1-(v-ymin)/(ymax-ymin))*ih; let g="",defs="";
+  [40,60,80,100].forEach(v=>{g+=`<line x1="${L}" y1="${Y(v).toFixed(1)}" x2="${w-R}" y2="${Y(v).toFixed(1)}" stroke="#1C212B"/><text x="${L-8}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="9" font-family="'JetBrains Mono'" fill="#454B55">${v}</text>`;});
+  WEEKS.forEach((wk,i)=>{g+=`<text x="${X(i).toFixed(1)}" y="${h-8}" text-anchor="middle" font-size="8.5" font-family="'JetBrains Mono'" fill="#454B55">${wk}</text>`;});
+  ex.sections.forEach((s,si)=>{if(hidden[s.key])return;const pts=s.series.map((v,i)=>[X(i),Y(v)]);
+    const dl=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+    defs+=`<linearGradient id="ar${si}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.c}" stop-opacity="0.16"/><stop offset="1" stop-color="${s.c}" stop-opacity="0"/></linearGradient>`;
+    g+=`<path d="${dl} L ${X(xmax).toFixed(1)} ${T+ih} L ${X(0).toFixed(1)} ${T+ih} Z" fill="url(#ar${si})"/><path d="${dl}" fill="none" stroke="${s.c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const lp=pts[pts.length-1];g+=`<circle cx="${lp[0].toFixed(1)}" cy="${lp[1].toFixed(1)}" r="3.4" fill="#090B0F" stroke="${s.c}" stroke-width="2"/>`;});
+  p.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet"><defs>${defs}</defs>${g}</svg>`;}
+
+/* ---------------- SECTION (topic list) ---------------- */
+function viewSection(sec){
+  const meta=EXAMS[EXAM].sections.find(s=>s.key===sec); const c=secColor(sec);
+  const rec=recommendedTopic(sec);
+  let clusters="";
+  for(const cl of sectionTree(sec)){
+    let rows="";
+    for(const t of cl.topics){
+      const locked=isLocked(sec,t.id), m=topicMastery(sec,t.id), lab=masteryLabel(m);
+      const isRec=(t.id===rec);
+      let badge="";
+      if(locked){const pn=t.prereq.map(p=>{const f=findTopic(sec,p);return f?f.t.name:p;}).join(", ");
+        badge=`<span class="badge lock trec">🔒 needs ${pn}</span>`;}
+      else if(isRec) badge=`<span class="badge rec trec">Recommended next</span>`;
+      else if(m>=H) badge=`<span class="badge done trec">Mastered</span>`;
+      rows+=`<div class="topic ${locked?'locked':'topic-clickable'}" ${locked?'':`data-go="topic" data-sec="${sec}" data-tid="${t.id}"`}>
+        <span class="tdot" style="background:${locked?'#454B55':lab[1]}"></span>
+        <span class="tn">${t.name}</span>${badge}
+        <span class="tspace"></span>
+        <span class="tmeter"><i style="width:${locked?0:Math.round(m*100)}%;background:${lab[1]}"></i></span>
+        <span class="tstate" style="color:${locked?'#666C77':lab[1]}">${locked?'Locked':lab[0]}</span>
+        ${locked?'':`<span class="tbtns"><button class="tbtn" data-go="topic" data-sec="${sec}" data-tid="${t.id}">Open →</button></span>`}</div>`;
+    }
+    clusters+=`<div class="cluster"><div class="cl-head"><span class="cl-bar" style="background:${c}"></span><span class="cl-nm">${cl.cluster}</span></div>${rows}</div>`;
+  }
+  return `<div class="wrap pg"><button class="back" data-go="home"><span class="a">←</span> Back to home</button>
+    <div class="sk">${EXAM} · learn &amp; practice</div><h2>${sec}</h2><div class="full">${meta?meta.full:""}</div>
+    <div class="sv-stats" style="margin-top:16px"><div class="sv-stat"><span class="v" style="color:${c}">${meta?meta.syll:0}%</span><span class="k">syllabus covered</span></div>
+      <div class="sv-stat"><span class="v">${meta?meta.ability:0}</span><span class="k">section ability</span></div>
+      <div class="sv-stat"><span class="v" style="color:${c}">${meta?meta.delta:""}</span><span class="k">last 8 weeks</span></div></div></div>
+    <div class="wrap clusters">${clusters}
+      <div style="font-family:var(--f-mono);font-size:11px;color:var(--text-3);margin-top:6px">Topic order is set by your Zone of Proximal Development + a multi-armed bandit — the “Recommended next” topic is the highest expected learning gain right now. Locked topics open once their prerequisites are mastered.</div></div>`;
+}
+
+/* ---------------- TOPIC (dashboard + subtopic list) ---------------- */
+function aggregateTopic(sec,tid){
+  const f=findTopic(sec,tid); let log=[],learnT=0,revT=0;
+  const subs=f.t.subs.map(sub=>{const st=subState(sec,tid,sub.id);log=log.concat(st.log);learnT+=st.learnTime;revT+=st.reviseTime;return {sub,st};});
+  const byD={}; [1,2,3,4,5].forEach(d=>byD[d]={t:0,c:0});
+  log.forEach(a=>{const d=Math.max(1,Math.min(5,a.d));byD[d].t++;byD[d].c+=a.C;});
+  return {subs,log,learnT,revT,byD,total:log.length};
+}
+function viewTopic(sec,tid){
+  const f=findTopic(sec,tid); const c=secColor(sec); const m=topicMastery(sec,tid),lab=masteryLabel(m);
+  const ag=aggregateTopic(sec,tid);
+  const sortedByMast=[...ag.subs].sort((a,b)=>b.st.mastery-a.st.mastery);
+  const learnedSubs=ag.subs.filter(x=>x.st.learned);
+  const strongest=sortedByMast.filter(x=>x.st.learned).slice(0,2);
+  const weakest=[...learnedSubs].sort((a,b)=>a.st.mastery-b.st.mastery).slice(0,2);
+  // difficulty rows
+  const accRows=[1,2,3,4,5].map(d=>({lab:"d"+d,pct:ag.byD[d].t?Math.round(ag.byD[d].c/ag.byD[d].t*100):0})).filter(r=>r.pct>0||ag.byD[parseInt(r.lab.slice(1))].t>0);
+  const accRowsShown = accRows.length?accRows:[{lab:"d2",pct:0},{lab:"d3",pct:0},{lab:"d4",pct:0}];
+  // history line
+  const hist=THIST[topKey(sec,tid)]||[];
+  const histSeries=hist.length>1?hist:[0,m];
+  // time split
+  const tot=ag.learnT+ag.revT, lp=tot?Math.round(ag.learnT/tot*100):50;
+  // common mistakes
+  const mistakes=[];
+  const hardAcc=ag.byD[4].t+ag.byD[5].t? Math.round((ag.byD[4].c+ag.byD[5].c)/(ag.byD[4].t+ag.byD[5].t)*100):null;
+  if(hardAcc!==null&&hardAcc<55) mistakes.push(["warn","Hard questions (d4–d5) are where most errors cluster — accuracy there is "+hardAcc+"%."]);
+  if(weakest[0]) mistakes.push(["warn",weakest[0].sub.name+" is your weakest subtopic, dragging the topic mastery down."]);
+  if(strongest[0]) mistakes.push(["good","Your "+strongest[0].sub.name+" concept is strong ("+Math.round(strongest[0].st.mastery*100)+"%)."]);
+  if(!mistakes.length) mistakes.push(["good","Start a subtopic below — analytics fill in as you answer questions."]);
+  // recommended action
+  const na=topicNextAction(sec,tid);
+  let recAct="";
+  if(na&&na.mode==="learn") recAct=`Learn <b>${na.sub.name}</b> next — it is the next concept in your path.`;
+  else if(na&&na.mode==="revise") recAct=`Revise <b>${na.sub.name}</b> — it is your weakest area in this topic.`;
+  else recAct=`All subtopics are strong. ${(()=>{const nt=recommendedTopic(sec);const ff=nt&&findTopic(sec,nt);return ff?"Move on to <b>"+ff.t.name+"</b>.":"You are ready to move to the next topic."})()}`;
+  if(hardAcc!==null&&hardAcc<55) recAct+=" Focus on hard-level practice before moving ahead.";
+
+  // subtopic list
+  let subRows="";
+  const next=topicNextAction(sec,tid);
+  f.t.subs.forEach(sub=>{
+    const st=subState(sec,tid,sub.id),sl=masteryLabel(st.mastery);
+    const isNext=next&&next.sub.id===sub.id;
+    const learnBtn=`<button class="tbtn tl" data-go="theory" data-sec="${sec}" data-tid="${tid}" data-sid="${sub.id}">${st.learned?'Re-learn':'Learn'}</button>`;
+    const revBtn=`<button class="tbtn tr ${st.learned?'':'disabled'}" ${st.learned?`data-revise="1" data-sec="${sec}" data-tid="${tid}" data-sid="${sub.id}"`:'disabled'}>Revise</button>`;
+    const anaBtn=st.learned?`<button class="tbtn" data-go="subanalysis" data-sec="${sec}" data-tid="${tid}" data-sid="${sub.id}">Analysis</button>`:'';
+    subRows+=`<div class="sub-row"><span class="sdot" style="background:${st.learned?sl[1]:'#454B55'}"></span>
+      <span class="sn">${sub.name}</span>${isNext?'<span class="badge next">ZPD next</span>':st.learned&&st.mastery>=H?'<span class="badge done">Mastered</span>':''}
+      <span class="ssp"></span>
+      <span class="smeter"><i style="width:${Math.round(st.mastery*100)}%;background:${sl[1]}"></i></span>
+      <span class="sstate" style="color:${st.learned?sl[1]:'#666C77'}">${st.learned?sl[0]:'Not started'}</span>
+      <span class="sb">${learnBtn}${revBtn}${anaBtn}</span></div>`;
+  });
+
+  return `<div class="wrap pg"><button class="back" data-go="section" data-sec="${sec}"><span class="a">←</span> All ${sec} topics</button>
+    <div class="sk">${EXAM} · ${sec} · topic dashboard</div><h2>${f.t.name}</h2>
+    <div class="full">An overall read on this topic, then its subtopics. Each subtopic has a first-time <b style="color:${c}">Learn</b> flow and an adaptive <b style="color:var(--qa)">Revise</b> flow.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:${c}">${ag.total}</div><div class="k">questions attempted</div></div>
+      <div class="bs"><div class="v">${ag.total?Math.round(ag.log.filter(a=>a.C).length/ag.total*100):0}<small>%</small></div><div class="k">overall accuracy</div></div>
+      <div class="bs"><div class="v" style="color:${lab[1]}">${m.toFixed(2)}</div><div class="k">topic mastery</div></div>
+      <div class="bs"><div class="v">${learnedSubs.length}<small>/${f.t.subs.length}</small></div><div class="k">subtopics learned</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Accuracy by difficulty</h4>${diffBarsSVG(accRowsShown,c)}</div>
+      <div class="dbox"><h4>Improvement over time</h4><div class="plot">${lineSVG(histSeries,c,{ymin:0,ymax:1,target:H,tlabel:"mastery "+H})}</div></div>
+      <div class="dbox"><h4>Strongest subtopics</h4><div class="swlist">${strongest.length?strongest.map(x=>`<div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${x.sub.name}</span><span class="mv">${Math.round(x.st.mastery*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">Learn a subtopic to see this.</div>'}</div></div>
+      <div class="dbox"><h4>Weakest subtopics</h4><div class="swlist">${weakest.length?weakest.map(x=>`<div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${x.sub.name}</span><span class="mv">${Math.round(x.st.mastery*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">Learn a subtopic to see this.</div>'}</div></div>
+      <div class="dbox"><h4>Time: learning vs practising</h4>
+        <div class="splitbar" style="margin-top:4px"><div class="splitseg" style="width:${lp}%;background:${c}"></div><div class="splitseg" style="width:${100-lp}%;background:var(--qa)"></div></div>
+        <div class="splitkey"><span><i class="sw" style="background:${c}"></i> Learn <b>${fmtT(ag.learnT)}</b></span><span><i class="sw" style="background:var(--qa)"></i> Practice <b>${fmtT(ag.revT)}</b></span></div></div>
+      <div class="dbox"><h4>Common mistakes</h4><div class="rec-list">${mistakes.map(([t,x])=>`<div class="rec ${t}"><span class="ri">${t==='good'?'✓':'!'}</span><span>${x}</span></div>`).join('')}</div></div>
+    </div>
+    <div class="dbox full" style="margin-bottom:20px"><h4>Recommended next action</h4><div class="rec good"><span class="ri">→</span><span>${recAct}</span></div></div>
+
+    <div class="dbox full" style="margin:4px 0 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px"><h4 style="margin:0 0 4px">Topic practice test</h4>
+        <div style="font-size:13px;color:var(--text-2)">Mixed questions from every subtopic in ${f.t.name}, then a full topic-practice analysis.${TPRAC[topKey(sec,tid)]?' · Last: '+TPRAC[topKey(sec,tid)].correct+'/'+TPRAC[topKey(sec,tid)].total+' ('+Math.round(TPRAC[topKey(sec,tid)].acc*100)+'%)':''}</div></div>
+      <button class="gp" data-startpractice="1" data-sec="${sec}" data-tid="${tid}">Practice questions →</button>
+      ${TPRAC[topKey(sec,tid)]?`<button class="tbtn" data-go="tpanalysis" data-sec="${sec}" data-tid="${tid}">View analysis</button>`:''}
+    </div>
+
+    <div class="head" style="margin:8px 0 14px"><div><div class="idx"><span class="ln"></span>Subtopics</div></div></div>
+    <div class="cluster">${subRows}</div>
+    <div style="font-family:var(--f-mono);font-size:11px;color:var(--text-3);margin-top:8px">“ZPD next” marks the subtopic the engine recommends now. Revise unlocks after Learn and adapts question difficulty to your mastery.</div>
+  </div>`;
+}
+
+/* ---------------- THEORY (start of Learn) ---------------- */
+function viewTheory(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid),c=secColor(sec);
+  const theory=sub.theory||[
+    `<b>${sub.name}</b> rests on a small set of core rules. Read the idea, follow the example, then attempt 10 questions — they start near your level and adapt.`,
+    "Identify what is given, choose the rule that links it to what is asked, and compute carefully. Watch units and the common traps.",
+  ];
+  return `<div class="wrap pg"><button class="back" data-go="topic" data-sec="${sec}" data-tid="${tid}"><span class="a">←</span> ${f.t.name}</button>
+    <div class="sk">${sec} · ${f.t.name} · Learn</div><h2>${sub.name}</h2>
+    <div class="theory">${theory.map((p,i)=>p.startsWith("<code>")?`<div class="ex">${p}</div>`:`<p>${p}</p>`).join('')}
+      <button class="bigbtn" data-startlearn="1" data-sec="${sec}" data-tid="${tid}" data-sid="${sid}">Begin 10 questions <span class="a">→</span></button>
+    </div></div>`;
+}
+
+/* ---------------- LEARN / REVISE session ---------------- */
+function startLearnSim(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid);
+  const diffs=shuffle([2,2,3,3,3,4,4,4,5,5]);
+  const qs=diffs.map(d=>genQ(sub.qtype,d));
+  SESS={mode:"learn",sec,tid,sid,sub,qs,idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined};
+  go({v:"quiz"});
+}
+function startReviseSim(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid),st=subState(sec,tid,sid);
+  SESS={mode:"revise",sec,tid,sid,sub,qs:[genQ(sub.qtype,st.edge)],idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined,startMast:st.mastery};
+  go({v:"revise"});
+}
+function viewQuiz(){
+  const S=SESS,q=S.qs[S.idx],n=S.target||S.qs.length;
+  let title="",back;
+  if(S.mode==="smock"){title=`${S.sec} Mock ${S.n} · ${SMOCK_MIN} min`;back=`data-quitsess="1" data-go="smArea" data-sec="${S.sec}"`;}
+  else if(S.mode==="fmock"){title=`Full Mock ${S.n} · ${allSections().length} sections`;back=`data-quitsess="1" data-go="fmArea"`;}
+  else if(S.mode==="practice"){const f=findTopic(S.sec,S.tid);title=`${f.t.name} · Practice test`;back=`data-quitsess="1" data-go="topic" data-sec="${S.sec}" data-tid="${S.tid}"`;}
+  else {back=`data-quitsess="1" data-go="topic" data-sec="${S.sec}" data-tid="${S.tid}"`;}
+  const allot=S.allot?` / ${fmtT(S.allot)}`:"";
+  return `<div class="wrap pg"><button class="back" ${back}><span class="a">←</span> Quit</button>
+    <div class="qwrap">
+      ${title?`<div class="sk">${title}</div>`:""}
+      <div class="qbar" style="margin-top:10px"><span class="qprog">Question ${S.idx+1} / ${n}</span><div class="qtrack"><i style="width:${(S.idx)/n*100}%"></i></div>
+        <span class="timer"><span class="pls"></span><span id="timer">0:00</span>${allot}</span></div>
+      ${qCard(q,S)}
+    </div></div>`;
+}
+function viewRevise(){
+  const S=SESS,q=S.qs[S.idx],st=subState(S.sec,S.tid,S.sid),lab=masteryLabel(st.mastery);
+  const delta=st.mastery-S.startMast;
+  return `<div class="wrap pg"><button class="back" data-quitsess="1" data-finrev="1" data-go="topic" data-sec="${S.sec}" data-tid="${S.tid}"><span class="a">←</span> End session</button>
+    <div class="qwrap">
+      <div class="sk">${S.sub.name} · Revise (adaptive)</div>
+      <div class="live-mast" style="margin-top:10px">Mastery <span class="mm"><i style="width:${Math.round(st.mastery*100)}%;background:${lab[1]}"></i></span>
+        <b style="color:${lab[1]}">${st.mastery.toFixed(2)}</b> <span class="delta" style="color:${delta>=0?'#69B88C':'#D08A52'}">${delta>=0?'+':''}${delta.toFixed(2)}</span>
+        <span style="margin-left:auto" class="timer"><span class="pls"></span><span id="timer">0:00</span></span></div>
+      <div class="qbar"><span class="qprog">Practised ${S.ans.length} · difficulty adapts to you</span><div class="qtrack"><i style="width:${Math.min(100,st.mastery*100)}%"></i></div></div>
+      ${qCard(q,S)}
+    </div></div>`;
+}
+function qCard(q,S){
+  if(S.loading||!q) return '<div class="qcard"><div class="qstem" style="color:var(--text-2)">Loading question from the engine…</div></div>';
+  const letters=["A","B","C","D"];
+  const reveal=(S.mode==="learn"||S.mode==="revise");
+  const test=(S.mode==="smock"||S.mode==="fmock"||S.mode==="practice");
+  const tag=test&&q.topic?`<span class="dchip" style="border-color:rgba(236,217,166,.4)">${q.section?q.section+' · ':''}${q.topic}</span>`:"";
+  let optsHtml="";
+  q.options.forEach((o,i)=>{
+    let cls="opt";
+    if(S.answered){ if(reveal){ if(i===q.correct)cls+=" correct"; else if(i===S.selected)cls+=" wrong"; else cls+=" dim"; }
+      else { if(i===S.selected)cls+=" picked"; else cls+=" dim"; } }
+    optsHtml+=`<button class="${cls}" ${S.answered?'disabled':`data-opt="${i}"`}><span class="k">${letters[i]}</span><span>${o}</span></button>`;
+  });
+  const last=S.idx+1>=(S.target||S.qs.length);
+  const lastLabel=(S.mode==="smock"||S.mode==="fmock")?"See results":S.mode==="practice"?"See analysis":"See review";
+  let fb="";
+  if(S.answered){
+    if(reveal){const ok=S.selected===q.correct;
+      fb=`<div class="fb ${ok?'ok':'no'}"><div class="fh">${ok?'Correct':'Not quite'}</div><div class="sol">${q.sol}</div></div>
+        <div class="qfoot"><button class="nextbtn" data-next="1">${last?lastLabel:'Next question'} <span>→</span></button></div>`;}
+    else fb=`<div class="fb" style="background:var(--panel);border:1px solid var(--line)"><div class="sol" style="color:var(--text-2)">Answer recorded.</div></div>
+        <div class="qfoot"><button class="nextbtn" data-next="1">${last?lastLabel:'Next question'} <span>→</span></button></div>`;
+  }
+  const skip=(!S.answered&&test)?`<div class="qfoot"><button class="nextbtn" style="border-color:var(--line);background:transparent;color:var(--text-2)" data-skip="1">Skip question →</button></div>`:"";
+  return `<div class="qcard"><div class="qmeta"><span class="dchip">difficulty ${q.d}</span><span>target ~${q.bench}s</span>${tag}</div>
+    <div class="qstem">${q.stem}</div>${optsHtml}${fb}${skip}</div>`;
+}
+function answerQSim(i){
+  if(SESS.answered) return;
+  SESS.selected=i; SESS.answered=true;
+  const q=SESS.qs[SESS.idx], t=(Date.now()-SESS.qStart)/1000;
+  SESS.ans.push({q,chosen:i,correct:i===q.correct,d:q.d,time:t,bench:q.bench});
+  // live mastery update for revise
+  const st=subState(SESS.sec,SESS.tid,SESS.sid);
+  if(SESS.mode==="revise"){
+    st.log.push({C:i===q.correct?1:0,d:q.d,ago:0}); recomputeSub(st); st.reviseTime+=t;
+    // MAPLE: move edge
+    st.edge = i===q.correct ? Math.min(5,st.edge+0.4) : Math.max(1,st.edge-0.4);
+  }
+  render();
+}
+function nextQSim(){
+  if(SESS.mode==="revise"){
+    const st=subState(SESS.sec,SESS.tid,SESS.sid);
+    SESS.qs.push(genQ(SESS.sub.qtype,st.edge)); SESS.idx++; SESS.selected=null; SESS.answered=false; SESS.qStart=Date.now(); render(); return;
+  }
+  if(SESS.idx+1>=SESS.qs.length){ finalizeFixed(); return; }
+  SESS.idx++; SESS.selected=null; SESS.answered=false; SESS.qStart=Date.now(); render();
+}
+function skipQ(){
+  if(SESS.answered) return;
+  const q=SESS.qs[SESS.idx], t=(Date.now()-SESS.qStart)/1000;
+  SESS.ans.push({q,chosen:-1,correct:false,d:q.d,time:t,bench:q.bench,skipped:true});
+  if(SESS.idx+1>=SESS.qs.length){ finalizeFixed(); return; }
+  SESS.idx++; SESS.selected=null; SESS.answered=false; SESS.qStart=Date.now(); render();
+}
+function finalizeLearn(){
+  if(timerInt){clearInterval(timerInt);timerInt=null;}
+  const S=SESS, st=subState(S.sec,S.tid,S.sid);
+  const totalTime=S.ans.reduce((a,b)=>a+b.time,0);
+  if(!S.backend){ S.ans.forEach(a=>st.log.push({C:a.correct?1:0,d:a.d,ago:0})); recomputeSub(st); }
+  st.learned=true; st.learnTime+=totalTime;
+  st.sessions.push({when:Date.now(),ans:S.ans,acc:S.ans.length?S.ans.filter(a=>a.correct).length/S.ans.length:0,avg:S.ans.length?totalTime/S.ans.length:0});
+  // topic mastery history snapshot
+  const tk=topKey(S.sec,S.tid); if(!THIST[tk])THIST[tk]=[0]; THIST[tk].push(topicMastery(S.sec,S.tid));
+  go({v:"subanalysis",sec:S.sec,tid:S.tid,sid:S.sid});
+}
+function finishRevise(){
+  if(timerInt){clearInterval(timerInt);timerInt=null;}
+  if(SESS){const tk=topKey(SESS.sec,SESS.tid); if(!THIST[tk])THIST[tk]=[0]; THIST[tk].push(topicMastery(SESS.sec,SESS.tid));}
+  SESS=null;
+}
+
+/* ---------------- SUBTOPIC ANALYSIS ---------------- */
+function viewSubAnalysis(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid),st=subState(sec,tid,sid),c=secColor(sec);
+  const ses=st.sessions[st.sessions.length-1];
+  if(!ses) return `<div class="wrap pg"><button class="back" data-go="topic" data-sec="${sec}" data-tid="${tid}"><span class="a">←</span> ${f.t.name}</button><h2>${sub.name}</h2><p class="full">No Learn session yet — run Learn to generate this analysis.</p></div>`;
+  const ans=ses.ans, acc=Math.round(ses.acc*100), avg=ses.avg, bench=ans.reduce((a,b)=>a+b.bench,0), actual=ans.reduce((a,b)=>a+b.time,0);
+  // missed by difficulty
+  const byD={}; [2,3,4,5].forEach(d=>byD[d]={t:0,c:0});
+  ans.forEach(a=>{if(!byD[a.d])byD[a.d]={t:0,c:0};byD[a.d].t++;byD[a.d].c+=a.correct?1:0;});
+  const diffRows=Object.keys(byD).filter(d=>byD[d].t).map(d=>({lab:"d"+d,pct:Math.round(byD[d].c/byD[d].t*100)}));
+  // recommendations
+  const recs=[];
+  const hardT=ans.filter(a=>a.d>=4), hardCorrect=hardT.filter(a=>a.correct).length;
+  const slowHard=hardT.filter(a=>a.time>a.bench).length;
+  if(slowHard>=2) recs.push(["warn","You spent more time than expected on hard questions — pace work at d4–d5 will help."]);
+  if(hardT.length&&hardCorrect/hardT.length<0.5) recs.push(["warn",`Hard questions are your gap (${hardCorrect}/${hardT.length} correct). Practise ${Math.max(8,hardT.length*3)} more hard-level questions before moving ahead.`]);
+  const easyT=ans.filter(a=>a.d<=2),easyWrong=easyT.filter(a=>!a.correct).length;
+  if(easyWrong>=2) recs.push(["warn","A few easy questions slipped — these are careless errors worth tightening up."]);
+  if(st.mastery>=H) recs.push(["good","Mastery is above threshold — you can move to the next subtopic, with light revision to keep it sharp."]);
+  else recs.push(["good",`Mastery is ${st.mastery.toFixed(2)}. A Revise session targeting your weak difficulties will push it past ${H}.`]);
+  // concepts needing improvement (by difficulty band)
+  const weakBand = diffRows.filter(r=>r.pct<55).map(r=>r.lab).join(", ");
+  return `<div class="wrap pg"><button class="back" data-go="topic" data-sec="${sec}" data-tid="${tid}"><span class="a">←</span> ${f.t.name}</button>
+    <div class="sk">${sec} · ${f.t.name} · subtopic analysis</div><h2>${sub.name}</h2>
+    <div class="full">Your most recent Learn session. This stays available whenever you revisit the subtopic.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:${c}">${acc}<small>%</small></div><div class="k">accuracy (${ans.filter(a=>a.correct).length}/${ans.length})</div></div>
+      <div class="bs"><div class="v">${fmtT(avg)}</div><div class="k">avg time / question</div></div>
+      <div class="bs"><div class="v" style="color:${actual<=bench?'#69B88C':'#D08A52'}">${actual<=bench?'−':'+'}${fmtT(Math.abs(actual-bench))}</div><div class="k">vs ${fmtT(bench)} benchmark</div></div>
+      <div class="bs"><div class="v" style="color:${masteryLabel(st.mastery)[1]}">${st.mastery.toFixed(2)}</div><div class="k">mastery now</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Accuracy by difficulty (missed where it dips)</h4>${diffBarsSVG(diffRows,c)}
+        ${weakBand?`<div style="font-size:12px;color:var(--warn);margin-top:8px">Weak at: ${weakBand}</div>`:''}</div>
+      <div class="dbox"><h4>Concepts requiring improvement</h4><div class="rec-list">
+        ${diffRows.filter(r=>r.pct<55).length?diffRows.filter(r=>r.pct<55).map(r=>`<div class="rec warn"><span class="ri">!</span><span>${r.lab} questions: only ${r.pct}% correct — revisit the harder applications of ${sub.name.toLowerCase()}.</span></div>`).join(''):'<div class="rec good"><span class="ri">✓</span><span>No difficulty band is weak — solid across the board.</span></div>'}
+      </div></div>
+    </div>
+    <div class="dbox full" style="margin-bottom:14px"><h4>Recommendations</h4><div class="rec-list">${recs.map(([t,x])=>`<div class="rec ${t}"><span class="ri">${t==='good'?'✓':'→'}</span><span>${x}</span></div>`).join('')}</div></div>
+
+    <div class="head" style="margin:8px 0 12px"><div><div class="idx"><span class="ln"></span>Review your answers</div></div></div>
+    ${ans.map((a,i)=>`<div class="rev-q" data-rev="${i}"><div class="rev-h">
+      <span class="rev-mark ${a.correct?'ok':'no'}">${a.correct?'✓':'✗'}</span>
+      <span class="rstem">Q${i+1}. ${a.q.stem}</span>
+      <span class="rt">${fmtT(a.time)} ${a.time>a.bench?'· slow':''}</span><span class="chev">›</span></div>
+      <div class="rev-body"><div class="ln">Your answer: <b>${a.q.options[a.chosen]}</b>${a.correct?'':` · Correct: <b style="color:#69B88C">${a.q.options[a.q.correct]}</b>`}</div>
+      <div class="ln">Difficulty <b>d${a.d}</b> · your time <b>${fmtT(a.time)}</b> vs target <b>${fmtT(a.bench)}</b></div>
+      <div class="sol">${a.q.sol}</div></div></div>`).join('')}
+    <div style="margin-top:18px;display:flex;gap:10px"><button class="bigbtn teal" data-revise="1" data-sec="${sec}" data-tid="${tid}" data-sid="${sid}">Revise this subtopic <span class="a">→</span></button>
+      <button class="bigbtn" data-go="topic" data-sec="${sec}" data-tid="${tid}">Back to topic <span class="a">→</span></button></div>
+  </div>`;
+}
+
+/* ---------------- events ---------------- */
+
+/* ===================== BACKEND BRIDGE — live API integration ===================== */
+const API={base:"",token:null,ready:false,built:{}};
+async function apiReq(method,path,opt){opt=opt||{};
+  let url=API.base+path;const q=opt.q;
+  if(q){const ps=Object.entries(q).filter(([,v])=>v!=null&&v!=="").map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(v));if(ps.length)url+="?"+ps.join("&");}
+  const o={method,headers:{}};if(opt.auth!==false&&API.token)o.headers.Authorization="Bearer "+API.token;
+  if(opt.body!=null){o.headers["Content-Type"]="application/json";o.body=JSON.stringify(opt.body);}
+  const r=await fetch(url,o);let d=null;try{d=await r.json();}catch(e){}
+  if(!r.ok)throw Object.assign(new Error("HTTP "+r.status),{status:r.status,data:d});return d;}
+const apiGet=(p,q)=>apiReq("GET",p,{q});
+const apiPost=(p,body,q)=>apiReq("POST",p,{body,q});
+
+function setBanner(txt,bad){let b=document.getElementById("liveBanner");
+  if(!b){b=document.createElement("div");b.id="liveBanner";
+    b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99;font:12px/1.5 var(--f-mono,ui-monospace,monospace);padding:7px 14px;text-align:center;letter-spacing:.02em";
+    document.body.appendChild(b);}
+  b.textContent=txt;b.style.background=bad?"#34191a":"#15241b";b.style.color=bad?"#E2A2A2":"#8fd0a8";}
+
+async function bootAuth(){try{const r=await apiReq("POST","/auth/dev-login",{body:{email:"dashboard@vettalume.test",exam_code:EXAM},auth:false});
+  API.token=r.access_token;API.ready=true;return true;}catch(e){API.ready=false;return false;}}
+
+const SECCOLORS=["#A18FE0","#E0A84E","#56B6AE","#69B88C","#D08A52"];
+async function ensureExam(exam){
+  if(API.built[exam])return true;
+  if(!API.ready){if(!await bootAuth()){setBanner("⚠ Backend offline — showing the design only. Start uvicorn on this origin for live data.",true);return false;}}
+  let tree,nodes;
+  try{tree=await apiGet("/catalog/tree",{exam});const st=await apiGet("/practice/state",{exam});nodes=st.nodes||[];}
+  catch(e){setBanner("⚠ Could not load "+exam+" ("+(e.status||"net")+").",true);return false;}
+  const M={};nodes.forEach(n=>M[n.node_id]={mastery:n.mastery,learned:n.learned,attempts:n.attempts});
+  const topicsOf=k=>(tree.topics||[]).filter(t=>t.section===k);
+  const secs=(tree.sections||[]).map((sx,i)=>{
+    const cs=topicsOf(sx.key).reduce((a,t)=>a.concat(t.concepts),[]);
+    const ms=cs.map(c=>M[c.id]?M[c.id].mastery:0);
+    const ability=ms.length?Math.round(ms.reduce((a,b)=>a+b,0)/ms.length*100):0;
+    const learned=cs.filter(c=>M[c.id]&&M[c.id].learned).length;
+    return {key:sx.key,full:sx.name,c:SECCOLORS[i%SECCOLORS.length],ability,
+      syll:cs.length?Math.round(learned/cs.length*100):0,delta:"+0",
+      series:Array.from({length:8},(_,k)=>Math.max(0,Math.round(ability-(7-k)*ability/8))),
+      attempted:learned,total:cs.length,bestSc:"—",lastSc:"—"};});
+  EXAMS[exam]={diag:"● Live · connected to your engine ("+exam+")",
+    hero:"This is your real backend. Open a section, pick a topic, and answer questions — every question, grade and mastery comes from the engine, not a simulation.",
+    done:0,best:"—",sections:secs};
+  const tmap={};(tree.sections||[]).forEach(sx=>{
+    tmap[sx.key]=[{name:sx.name,topics:topicsOf(sx.key).map(t=>({id:t.id,name:t.name,prereq:[],
+      subs:t.concepts.map(c=>({id:c.id,name:c.name,qtype:"backend"}))}))}];});
+  TREE[exam]=tmap;
+  (tree.sections||[]).forEach(sx=>topicsOf(sx.key).forEach(t=>t.concepts.forEach(c=>{
+    const k=exam+"|"+sx.key+"|"+t.id+"|"+c.id;const m=M[c.id];
+    PROG[k]={learned:m?m.learned:false,log:[],sessions:[],edge:3,mastery:m?m.mastery:0,learnTime:0,reviseTime:0};})));
+  API.built[exam]=true;setBanner("● Live — connected to backend · "+exam+" · answers graded by the engine",false);return true;}
+
+async function fetchQ(nodeId){try{const it=await apiGet("/practice/next",{node_id:nodeId});
+  return {id:it.item_id,stem:it.stem,options:it.options||[],correct:null,sol:null,d:0,bench:90,node:nodeId};}
+  catch(e){return null;}}
+
+/* ---- live session implementations ---- */
+async function startLearnBackend(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid);
+  SESS={mode:"learn",sec,tid,sid,sub,qs:[],idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined,target:10,backend:true,loading:true};
+  go({v:"quiz"});const q=await fetchQ(sid);
+  if(!q){SESS=null;alert("No questions for “"+sub.name+"” in the bank yet. Ingest items for this concept, then retry.");go({v:"topic",sec,tid});return;}
+  SESS.qs=[q];SESS.loading=false;SESS.qStart=Date.now();render();}
+async function startReviseBackend(sec,tid,sid){
+  const f=findTopic(sec,tid),sub=f.t.subs.find(s=>s.id===sid),st=subState(sec,tid,sid);
+  SESS={mode:"revise",sec,tid,sid,sub,qs:[],idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined,startMast:st.mastery,backend:true,loading:true};
+  go({v:"revise"});const q=await fetchQ(sid);
+  if(!q){SESS=null;alert("No more unseen questions for “"+sub.name+"”.");go({v:"topic",sec,tid});return;}
+  SESS.qs=[q];SESS.loading=false;SESS.qStart=Date.now();render();}
+async function answerQBackend(i){
+  if(!SESS||SESS.answered||SESS.grading||SESS.loading)return;
+  const q=SESS.qs[SESS.idx];if(!q)return;SESS.selected=i;const t=(Date.now()-SESS.qStart)/1000;
+  SESS.grading=true;render();
+  try{const res=await apiPost("/practice/answer",{item_id:q.id,answer_given:(q.options[i]!=null?String(q.options[i]):null),context:"practice",response_time_ms:Math.round(t*1000)});
+    q.correct=res.correct?i:-1;q.sol=res.solution||"(no written solution for this item)";
+    SESS.grading=false;SESS.answered=true;
+    SESS.ans.push({q,chosen:i,correct:!!res.correct,d:q.d,time:t,bench:q.bench});
+    const st=subState(SESS.sec,SESS.tid,SESS.sid);st.log.push({C:res.correct?1:0,d:q.d,ago:0});
+    if(typeof res.mastery==="number")st.mastery=res.mastery;st.learned=true;
+    if(SESS.mode==="revise")st.reviseTime+=t;else st.learnTime+=t;}
+  catch(e){SESS.grading=false;SESS.answered=true;q.correct=-1;
+    q.sol="⚠ Couldn’t reach the backend to grade this ("+(e.status||"network")+"). Is the server running on this origin?";
+    SESS.ans.push({q,chosen:i,correct:false,d:q.d,time:t,bench:q.bench});}
+  render();}
+async function nextQBackend(){
+  if(!SESS)return;
+  if(SESS.mode==="learn"&&SESS.ans.length>=(SESS.target||10)){finalizeFixed();return;}
+  SESS.loading=true;SESS.answered=false;SESS.selected=null;render();
+  const q=await fetchQ(SESS.sid);
+  if(!q){if(SESS.mode==="learn"){finalizeFixed();}else{const sec=SESS.sec,tid=SESS.tid;finishRevise();go({v:"topic",sec,tid});}return;}
+  SESS.qs.push(q);SESS.idx++;SESS.loading=false;SESS.qStart=Date.now();render();}
+
+/* ---- dispatchers: live when connected, simulation otherwise ---- */
+function startLearn(sec,tid,sid){return API.built[EXAM]?startLearnBackend(sec,tid,sid):startLearnSim(sec,tid,sid);}
+function startRevise(sec,tid,sid){return API.built[EXAM]?startReviseBackend(sec,tid,sid):startReviseSim(sec,tid,sid);}
+function answerQ(i){return (SESS&&SESS.backend)?answerQBackend(i):answerQSim(i);}
+function nextQ(){return (SESS&&SESS.backend)?nextQBackend():nextQSim();}
+
+
+document.addEventListener("click",e=>{
+  const rev=e.target.closest("[data-rev]"); if(rev){rev.classList.toggle("open");return;}
+  const opt=e.target.closest("[data-opt]"); if(opt){answerQ(parseInt(opt.dataset.opt,10));return;}
+  const nx=e.target.closest("[data-next]"); if(nx){nextQ();return;}
+  const sl=e.target.closest("[data-startlearn]"); if(sl){startLearn(sl.dataset.sec,sl.dataset.tid,sl.dataset.sid);return;}
+  const rv=e.target.closest("[data-revise]"); if(rv){startRevise(rv.dataset.sec,rv.dataset.tid,rv.dataset.sid);return;}
+  const sp=e.target.closest("[data-startpractice]"); if(sp){startTopicPractice(sp.dataset.sec,sp.dataset.tid);return;}
+  const sm=e.target.closest("[data-startmock]"); if(sm){startSectionalMock(sm.dataset.sec,+sm.dataset.n);return;}
+  const sf=e.target.closest("[data-startfull]"); if(sf){startFullMock(+sf.dataset.n);return;}
+  const sk=e.target.closest("[data-skip]"); if(sk){skipQ();return;}
+  const rr=e.target.closest("[data-refreshrecs]"); if(rr){render();return;}
+  const finr=e.target.closest("[data-finrev]"); if(finr){finishRevise();}
+  const quit=e.target.closest("[data-quitsess]"); if(quit && !e.target.closest("[data-finrev]")){SESS=null;}
+  const g=e.target.closest("[data-go]"); if(g){go({v:g.dataset.go,sec:g.dataset.sec,tid:g.dataset.tid,sid:g.dataset.sid,n:g.dataset.n!==undefined?+g.dataset.n:undefined});return;}
+});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",async()=>{
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true"); EXAM=b.dataset.exam; hidden={}; SESS=null;
+  setBanner("Loading "+EXAM+" from the engine…",false); await ensureExam(EXAM); go({v:"home"});
+}));
+
+(async()=>{ setBanner("Connecting to the backend…",false); await bootAuth();
+  await ensureExam(EXAM); render();
+})();
+
+
+/* ======================================================================
+   PILLAR 2 & 3 : SECTIONAL MOCKS, FULL MOCKS, + TOPIC PRACTICE
+   ====================================================================== */
+const SMOCK_N=6, FMOCK_N=8, SMOCK_Q=12, FMOCK_QPS=5, SMOCK_MIN=40;
+const MOCKR={};        // mock results : smKey/fmKey -> result
+const TPRAC={};        // topic-practice results : topKey -> result
+const recDismiss={};   // exam -> {tid:true} manually cleared recs
+const seeded={};       // exam -> bool
+
+function hashStr(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function seededRand(seed){let s=hashStr(String(seed))||123456789;return ()=>{s^=s<<13;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+const smKey=(sec,n)=>EXAM+"|S|"+sec+"|"+n;
+const fmKey=n=>EXAM+"|F|"+n;
+const allSections=()=>Object.keys(TREE[EXAM]||{});
+function sectionPairs(sec){const out=[];for(const cl of sectionTree(sec))for(const t of cl.topics)for(const s of t.subs)out.push({tid:t.id,topic:t.name,sub:s});return out;}
+const emh=byD=>({easy:{t:byD[1].t+byD[2].t,c:byD[1].c+byD[2].c,time:byD[1].time+byD[2].time},
+                 med:{t:byD[3].t,c:byD[3].c,time:byD[3].time},
+                 hard:{t:byD[4].t+byD[5].t,c:byD[4].c+byD[5].c,time:byD[4].time+byD[5].time}});
+
+/* ---- build a result object from a per-question list ---- */
+function mockResultFromPerQ(perQ,kind,sections){
+  const answered=perQ.filter(q=>!q.skipped), correct=perQ.filter(q=>q.correct).length, total=perQ.length;
+  const acc=answered.length?correct/answered.length:0, timeSec=perQ.reduce((a,q)=>a+(q.time||0),0);
+  const byTopic={}; perQ.forEach(q=>{const k=q.tid;if(!byTopic[k])byTopic[k]={tid:q.tid,topic:q.topic,section:q.section,t:0,c:0,time:0};byTopic[k].t++;byTopic[k].c+=q.correct?1:0;byTopic[k].time+=q.time||0;});
+  const byD={};[1,2,3,4,5].forEach(d=>byD[d]={t:0,c:0,time:0});perQ.forEach(q=>{byD[q.d].t++;byD[q.d].c+=q.correct?1:0;byD[q.d].time+=q.time||0;});
+  let bySection=null;
+  if(kind==="F"){bySection={};(sections||[]).forEach(s=>bySection[s]={t:0,c:0,time:0});perQ.forEach(q=>{const s=q.section;if(!bySection[s])bySection[s]={t:0,c:0,time:0};bySection[s].t++;bySection[s].c+=q.correct?1:0;bySection[s].time+=q.time||0;});}
+  const pct=Math.max(20,Math.min(99,Math.round(acc*68+18)));
+  return {attempted:true,kind,perQ,total,correct,answered:answered.length,acc,timeSec,byTopic,byD,bySection,
+          skipped:perQ.filter(q=>q.skipped).length,guessed:perQ.filter(q=>q.guessed).length,score:correct,pct,date:Date.now()};
+}
+/* ---- synthetic per-question history (so dashboards/trends have data) ---- */
+function synthPerQ(seed,pairs,count,ability,improve,sectionOf){
+  const rnd=seededRand(seed),perQ=[];
+  for(let i=0;i<count;i++){
+    const p=pairs[Math.floor(rnd()*pairs.length)], d=1+Math.floor(rnd()*5);
+    const base=(ability+improve)/100, tb=((hashStr(p.tid)%30)-15)/100;
+    const pc=Math.max(0.05,Math.min(0.96,base+tb-(d-3)*0.09));
+    let correct=rnd()<pc; const bench=BENCH[d], time=Math.round(bench*(0.55+rnd()*1.0));
+    const skipped=(!correct&&rnd()<0.10); if(skipped)correct=false;
+    const guessed=(correct&&d>=4&&rnd()<0.28);
+    perQ.push({tid:p.tid,topic:p.topic,sub:p.sub.name,d,correct,time:skipped?0:time,bench,skipped,guessed,section:sectionOf?sectionOf(p):undefined});
+  }
+  return perQ;
+}
+function seedHistory(){
+  if(seeded[EXAM])return; seeded[EXAM]=true;
+  const ex=EXAMS[EXAM];
+  ex.sections.forEach(s=>{const k=Math.min(4,SMOCK_N-1);
+    for(let n=1;n<=k;n++){const pq=synthPerQ("seed|"+smKey(s.key,n),sectionPairs(s.key),SMOCK_Q,s.ability-6,n*2.2);MOCKR[smKey(s.key,n)]=mockResultFromPerQ(pq,"S");}});
+  const fSeed=Math.max(1,Math.min(ex.done,FMOCK_N-1)),secs=allSections();
+  for(let n=1;n<=fSeed;n++){let pq=[];secs.forEach(sc=>{const ab=(ex.sections.find(x=>x.key===sc)||{}).ability||60;pq=pq.concat(synthPerQ("seed|"+fmKey(n)+"|"+sc,sectionPairs(sc),FMOCK_QPS,ab-6,n*2.0,()=>sc));});MOCKR[fmKey(n)]=mockResultFromPerQ(pq,"F",secs);}
+}
+
+/* ---- aggregation + recommendations ---- */
+function attemptedSectional(sec){const a=[];for(let n=1;n<=SMOCK_N;n++){const r=MOCKR[smKey(sec,n)];if(r)a.push({n,r});}return a;}
+function attemptedFull(){const a=[];for(let n=1;n<=FMOCK_N;n++){const r=MOCKR[fmKey(n)];if(r)a.push({n,r});}return a;}
+function aggTopicAcc(att){const m={};att.forEach(({r})=>Object.values(r.byTopic).forEach(tp=>{if(!m[tp.tid])m[tp.tid]={tid:tp.tid,topic:tp.topic,section:tp.section,t:0,c:0};m[tp.tid].t+=tp.t;m[tp.tid].c+=tp.c;}));return Object.values(m).map(x=>({...x,acc:x.t?x.c/x.t:0}));}
+function recList(att,fixedSec){
+  const dis=recDismiss[EXAM]||{};
+  return aggTopicAcc(att).filter(x=>x.t>=2).sort((a,b)=>a.acc-b.acc)
+    .map(x=>({...x,sec:fixedSec||x.section}))
+    .filter(x=>x.acc<0.6 && x.sec && topicMastery(x.sec,x.tid)<H && !dis[x.tid]).slice(0,5);
+}
+function bySubAgg(perQ){const m={};perQ.forEach(q=>{const k=q.subId||q.sub;if(!m[k])m[k]={sub:q.sub,t:0,c:0,time:0};m[k].t++;m[k].c+=q.correct?1:0;m[k].time+=q.time||0;});return Object.values(m).map(x=>({...x,acc:x.t?x.c/x.t:0}));}
+
+function accBars(rows,color){
+  if(!rows.length)return '<div style="color:var(--text-3);font-size:12.5px">No data yet.</div>';
+  return `<div class="swlist">`+rows.map(r=>`<div class="swrow"><span class="nm">${r.lab}</span>
+    <span class="smeter" style="width:120px;flex:none"><i style="width:${r.pct}%;background:${r.pct>=60?color:r.pct>=40?'#E0A84E':'#A8542B'}"></i></span>
+    <span class="mv">${r.pct}%</span></div>`).join('')+`</div>`;
+}
+function timeList(rows){
+  return `<div class="swlist">`+rows.map(r=>`<div class="swrow"><span class="nm">${r.lab}</span><span class="ssp"></span><span class="mv">${fmtT(r.t)}</span></div>`).join('')+`</div>`;
+}
+function mockInsights(r){
+  const tops=Object.values(r.byTopic).filter(t=>t.t>=2),ins=[];
+  const strong=tops.filter(t=>t.c/t.t>=0.75).sort((a,b)=>b.c/b.t-a.c/a.t)[0];
+  const weak=tops.filter(t=>t.c/t.t<0.5).sort((a,b)=>a.c/a.t-b.c/b.t)[0];
+  if(strong)ins.push(["good",strong.topic+" accuracy is "+Math.round(strong.c/strong.t*100)+"%."]);
+  if(weak)ins.push(["warn",weak.topic+" accuracy is "+Math.round(weak.c/weak.t*100)+"% — a priority to revise."]);
+  const h=emh(r.byD).hard; if(h.t){const avgH=h.time/h.t;if(avgH>BENCH[4]*1.2)ins.push(["warn","You spent more time than average on hard questions ("+fmtT(avgH)+" each)."]);}
+  if(r.skipped)ins.push(["warn",r.skipped+" question"+(r.skipped>1?"s":"")+" skipped — work on pacing and selection."]);
+  if(r.guessed)ins.push(["warn",r.guessed+" answer"+(r.guessed>1?"s":"")+" likely guessed (fast correct on hard items)."]);
+  if(!ins.length)ins.push(["good","Balanced performance across topics and difficulty."]);
+  return ins;
+}
+const reviewList=perQ=>{
+  const real=perQ.filter(q=>q.stem);
+  if(!real.length)return '<div style="color:var(--text-3);font-size:12.5px;padding:6px 0">Per-question review is shown for mocks you take in-app.</div>';
+  return real.map((a,i)=>`<div class="rev-q" data-rev="${i}"><div class="rev-h">
+    <span class="rev-mark ${a.skipped?'no':a.correct?'ok':'no'}">${a.skipped?'–':a.correct?'✓':'✗'}</span>
+    <span class="rstem">Q${i+1}. ${a.stem}</span><span class="rt">${a.skipped?'skipped':fmtT(a.time)}</span><span class="chev">›</span></div>
+    <div class="rev-body"><div class="ln">Your answer: <b>${a.skipped?'(skipped)':a.options[a.chosenIdx]}</b>${a.correct?'':` · Correct: <b style="color:#69B88C">${a.options[a.correctIdx]}</b>`}</div>
+    <div class="ln">Topic <b>${a.topic}</b> · difficulty <b>d${a.d}</b></div><div class="sol">${a.sol}</div></div></div>`).join('');
+};
+
+/* ---- starting sessions ---- */
+function startTopicPractice(sec,tid){
+  const f=findTopic(sec,tid),subs=f.t.subs,per=Math.max(2,Math.min(4,Math.ceil(12/subs.length)));let qs=[];
+  subs.forEach(sub=>{shuffle([2,3,3,4,5]).slice(0,per).forEach(d=>{const q=genQ(sub.qtype,d);q.topic=f.t.name;q.tid=tid;q.subId=sub.id;q.sub=sub.name;q.d=d;qs.push(q);});});
+  shuffle(qs); qs=qs.slice(0,15);
+  SESS={mode:"practice",sec,tid,sub:null,qs,idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined};
+  go({v:"quiz"});
+}
+function startSectionalMock(sec,n){
+  const pairs=sectionPairs(sec),rnd=seededRand("paper|"+smKey(sec,n));let qs=[];
+  for(let i=0;i<SMOCK_Q;i++){const p=pairs[Math.floor(rnd()*pairs.length)],d=1+Math.floor(rnd()*5);const q=genQ(p.sub.qtype,d);q.topic=p.topic;q.tid=p.tid;q.subId=p.sub.id;q.sub=p.sub.name;q.d=d;qs.push(q);}
+  SESS={mode:"smock",sec,n,qs,idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined,allot:SMOCK_MIN*60};
+  go({v:"quiz"});
+}
+function startFullMock(n){
+  const secs=allSections();let qs=[];
+  secs.forEach(sc=>{const pairs=sectionPairs(sc),rnd=seededRand("paper|"+fmKey(n)+"|"+sc);for(let i=0;i<FMOCK_QPS;i++){const p=pairs[Math.floor(rnd()*pairs.length)],d=1+Math.floor(rnd()*5);const q=genQ(p.sub.qtype,d);q.topic=p.topic;q.tid=p.tid;q.subId=p.sub.id;q.sub=p.sub.name;q.section=sc;q.d=d;qs.push(q);}});
+  SESS={mode:"fmock",n,sec:secs[0],qs,idx:0,ans:[],selected:null,answered:false,qStart:Date.now(),t0:undefined,allot:secs.length*SMOCK_MIN*60};
+  go({v:"quiz"});
+}
+/* ---- finalizers ---- */
+function buildPerQ(S){return S.ans.map(a=>({tid:a.q.tid,topic:a.q.topic,sub:a.q.sub,subId:a.q.subId,section:a.q.section,d:a.d,correct:a.correct,time:a.time,bench:a.bench,skipped:!!a.skipped,
+  guessed:(a.correct&&a.d>=4&&a.time<a.bench*0.45),stem:a.q.stem,options:a.q.options,chosenIdx:a.chosen,correctIdx:a.q.correct,sol:a.q.sol}));}
+function finalizeFixed(){const m=SESS.mode;if(m==="learn")return finalizeLearn();if(m==="practice")return finalizeTopicPractice();if(m==="smock")return finalizeSectionalMock();if(m==="fmock")return finalizeFullMock();}
+function finalizeTopicPractice(){
+  if(timerInt){clearInterval(timerInt);timerInt=null;}
+  const S=SESS,perQ=buildPerQ(S);
+  S.ans.forEach(a=>{if(a.skipped)return;const st=subState(S.sec,S.tid,a.q.subId);st.log.push({C:a.correct?1:0,d:a.d,ago:0});st.reviseTime+=a.time;recomputeSub(st);});
+  const r=mockResultFromPerQ(perQ,"P");r.bySub=bySubAgg(perQ);TPRAC[topKey(S.sec,S.tid)]=r;
+  const tk=topKey(S.sec,S.tid);if(!THIST[tk])THIST[tk]=[0];THIST[tk].push(topicMastery(S.sec,S.tid));
+  go({v:"tpanalysis",sec:S.sec,tid:S.tid});
+}
+function finalizeSectionalMock(){if(timerInt){clearInterval(timerInt);timerInt=null;}const S=SESS;MOCKR[smKey(S.sec,S.n)]=mockResultFromPerQ(buildPerQ(S),"S");go({v:"smAnalysis",sec:S.sec,n:S.n});}
+function finalizeFullMock(){if(timerInt){clearInterval(timerInt);timerInt=null;}const S=SESS;MOCKR[fmKey(S.n)]=mockResultFromPerQ(buildPerQ(S),"F",allSections());go({v:"fmAnalysis",n:S.n});}
+
+/* ====================== VIEW : SECTIONAL MOCK AREA ====================== */
+function viewSmArea(sec){
+  seedHistory();
+  const c=secColor(sec),meta=EXAMS[EXAM].sections.find(s=>s.key===sec),att=attemptedSectional(sec);
+  const latest=att.length?att[att.length-1].r:null, best=att.reduce((m,a)=>Math.max(m,a.r.pct),0);
+  const avgAcc=att.length?Math.round(att.reduce((s,a)=>s+a.r.acc,0)/att.length*100):0;
+  const scoreS=att.map(a=>a.r.pct), accS=att.map(a=>Math.round(a.r.acc*100)), timeS=att.map(a=>Math.round(a.r.timeSec/a.r.total));
+  const tAgg=aggTopicAcc(att).filter(x=>x.t>=2).sort((a,b)=>b.acc-a.acc);
+  const strong=tAgg.slice(0,3), weak=[...tAgg].reverse().slice(0,3);
+  const dAgg={};[1,2,3,4,5].forEach(d=>dAgg[d]={t:0,c:0});att.forEach(({r})=>[1,2,3,4,5].forEach(d=>{dAgg[d].t+=r.byD[d].t;dAgg[d].c+=r.byD[d].c;}));
+  const dRows=[1,2,3,4,5].map(d=>({lab:"d"+d,pct:dAgg[d].t?Math.round(dAgg[d].c/dAgg[d].t*100):0}));
+  const recs=recList(att,sec);
+  let nextIdx=null;for(let n=1;n<=SMOCK_N;n++){if(!MOCKR[smKey(sec,n)]){nextIdx=n;break;}}
+  let list="";
+  for(let n=1;n<=SMOCK_N;n++){const r=MOCKR[smKey(sec,n)];
+    list+=`<div class="sub-row"><span class="sdot" style="background:${r?c:'#454B55'}"></span><span class="sn">${sec} Mock ${n}</span>
+      ${r?`<span class="badge done">${r.pct}ile · ${Math.round(r.acc*100)}%</span>`:n===nextIdx?'<span class="badge rec">Start next</span>':'<span class="badge lock">🔒 locked</span>'}
+      <span class="ssp"></span><span class="sb">${r?`<button class="tbtn" data-go="smAnalysis" data-sec="${sec}" data-n="${n}">View analysis</button>`
+        :n===nextIdx?`<button class="tbtn tl" data-startmock="1" data-sec="${sec}" data-n="${n}">Start · ${SMOCK_MIN}m</button>`
+        :`<button class="tbtn disabled" disabled>Locked</button>`}</span></div>`;
+  }
+  const recBox=`<div class="dbox full"><h4>Smart recommendations — weak topics to fix</h4>
+    <div class="rec-actions"><span style="font-size:12px;color:var(--text-3)">Improve these in Learning &amp; Practice; mastered ones drop off automatically.</span>
+      <button class="refresh-btn" data-refreshrecs="1">↻ Refresh</button></div>
+    <div class="rec-list">${recs.length?recs.map(x=>`<div class="rec warn"><span class="ri">!</span><span>${x.topic} — ${Math.round(x.acc*100)}% across mocks</span>
+      <button class="gp" data-go="topic" data-sec="${x.sec}" data-tid="${x.tid}">Go practice →</button></div>`).join('')
+      :'<div class="rec good"><span class="ri">✓</span><span>No weak topics outstanding — every recommended topic has been improved.</span></div>'}</div></div>`;
+  return `<div class="wrap pg"><button class="back" data-go="home"><span class="a">←</span> Back to home</button>
+    <div class="sk">${EXAM} · sectional mocks</div><h2>${sec} mocks</h2>
+    <div class="full">${meta?meta.full:""} — fixed ${SMOCK_MIN}-minute papers. The dashboard aggregates every attempt; history is never deleted.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:${c}">${att.length}<small>/${SMOCK_N}</small></div><div class="k">mocks attempted</div></div>
+      <div class="bs"><div class="v">${latest?latest.pct:'—'}<small>ile</small></div><div class="k">latest percentile</div></div>
+      <div class="bs"><div class="v" style="color:${c}">${best||'—'}<small>ile</small></div><div class="k">best percentile</div></div>
+      <div class="bs"><div class="v">${avgAcc}<small>%</small></div><div class="k">avg accuracy</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Score (percentile) trend</h4><div class="plot">${lineSVG(scoreS.length>1?scoreS:[scoreS[0]||0,scoreS[0]||0],c,{ymin:0,ymax:100})}</div></div>
+      <div class="dbox"><h4>Accuracy trend</h4><div class="plot">${lineSVG(accS.length>1?accS:[accS[0]||0,accS[0]||0],c,{ymin:0,ymax:100})}</div></div>
+      <div class="dbox"><h4>Time management (avg sec / question)</h4><div class="plot">${lineSVG(timeS.length>1?timeS:[timeS[0]||0,timeS[0]||0],"#E0A84E",{ymin:0})}</div></div>
+      <div class="dbox"><h4>Difficulty-wise performance</h4>${accBars(dRows,c)}</div>
+      <div class="dbox"><h4>Topic-wise performance</h4>${accBars(tAgg.map(x=>({lab:x.topic,pct:Math.round(x.acc*100)})),c)}</div>
+      <div class="dbox"><h4>Strongest &amp; weakest topics</h4>
+        <div class="swlist">${strong.slice(0,2).map(x=>`<div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${x.topic}</span><span class="mv">${Math.round(x.acc*100)}%</span></div>`).join('')}
+        ${weak.slice(0,2).map(x=>`<div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${x.topic}</span><span class="mv">${Math.round(x.acc*100)}%</span></div>`).join('')}</div></div>
+    </div>
+    ${recBox}
+    <div class="head" style="margin:14px 0 12px"><div><div class="idx"><span class="ln"></span>Mocks</div></div></div>
+    <div class="cluster">${list}</div>
+  </div>`;
+}
+
+/* ====================== VIEW : SECTIONAL MOCK ANALYSIS ====================== */
+function viewSmAnalysis(sec,n){
+  const r=MOCKR[smKey(sec,n)],c=secColor(sec);
+  if(!r)return `<div class="wrap pg"><button class="back" data-go="smArea" data-sec="${sec}"><span class="a">←</span> ${sec} mocks</button><h2>${sec} Mock ${n}</h2><p class="full">Not attempted yet.</p></div>`;
+  const e=emh(r.byD), tlist=Object.values(r.byTopic).sort((a,b)=>b.time-a.time);
+  const emhRows=[{lab:"Easy (d1–2)",t:e.easy.t,c:e.easy.c},{lab:"Medium (d3)",t:e.med.t,c:e.med.c},{lab:"Hard (d4–5)",t:e.hard.t,c:e.hard.c}].filter(x=>x.t).map(x=>({lab:x.lab,pct:Math.round(x.c/x.t*100)}));
+  const strong=tlist.filter(t=>t.t>=2&&t.c/t.t>=0.7).sort((a,b)=>b.c/b.t-a.c/a.t).slice(0,3);
+  const weak=tlist.filter(t=>t.t>=1&&t.c/t.t<0.6).sort((a,b)=>a.c/a.t-b.c/b.t).slice(0,3);
+  return `<div class="wrap pg"><button class="back" data-go="smArea" data-sec="${sec}"><span class="a">←</span> ${sec} mocks</button>
+    <div class="sk">${EXAM} · ${sec} · mock analysis</div><h2>${sec} Mock ${n}</h2>
+    <div class="full">Stored permanently — revisit this analysis any time.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:${c}">${r.correct}<small>/${r.total}</small></div><div class="k">score</div></div>
+      <div class="bs"><div class="v">${Math.round(r.acc*100)}<small>%</small></div><div class="k">accuracy</div></div>
+      <div class="bs"><div class="v" style="color:${c}">${r.pct}<small>ile</small></div><div class="k">percentile</div></div>
+      <div class="bs"><div class="v">${fmtT(r.timeSec)}</div><div class="k">total time</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Easy / Medium / Hard performance</h4>${accBars(emhRows,c)}
+        <div class="splitkey" style="margin-top:10px"><span>avg time E <b>${e.easy.t?fmtT(e.easy.time/e.easy.t):'—'}</b></span><span>M <b>${e.med.t?fmtT(e.med.time/e.med.t):'—'}</b></span><span>H <b>${e.hard.t?fmtT(e.hard.time/e.hard.t):'—'}</b></span></div></div>
+      <div class="dbox"><h4>Time spent by topic</h4>${timeList(tlist.map(t=>({lab:t.topic,t:t.time})))}</div>
+      <div class="dbox"><h4>Strong topics</h4><div class="swlist">${strong.length?strong.map(t=>`<div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${t.topic}</span><span class="mv">${Math.round(t.c/t.t*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+      <div class="dbox"><h4>Weak topics</h4><div class="swlist">${weak.length?weak.map(t=>`<div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${t.topic}</span><span class="mv">${Math.round(t.c/t.t*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+      <div class="dbox"><h4>Skipped &amp; guessed</h4><div class="swlist">
+        <div class="swrow"><span class="nm">Questions skipped</span><span class="ssp"></span><span class="mv">${r.skipped}</span></div>
+        <div class="swrow"><span class="nm">Likely guessed</span><span class="ssp"></span><span class="mv">${r.guessed}</span></div>
+        <div class="swrow"><span class="nm">Avg time / question</span><span class="ssp"></span><span class="mv">${fmtT(r.timeSec/r.total)}</span></div></div></div>
+      <div class="dbox"><h4>Common mistakes &amp; insights</h4><div class="rec-list">${mockInsights(r).map(([t,x])=>`<div class="rec ${t}"><span class="ri">${t==='good'?'✓':'!'}</span><span>${x}</span></div>`).join('')}</div></div>
+    </div>
+    <div class="head" style="margin:8px 0 12px"><div><div class="idx"><span class="ln"></span>Question review</div></div></div>
+    ${reviewList(r.perQ)}
+  </div>`;
+}
+
+/* ====================== VIEW : FULL MOCK AREA ====================== */
+function viewFmArea(){
+  seedHistory();
+  const ex=EXAMS[EXAM],att=attemptedFull(),secs=allSections();
+  const latest=att.length?att[att.length-1].r:null, best=att.reduce((m,a)=>Math.max(m,a.r.pct),0);
+  const scoreS=att.map(a=>a.r.pct), accS=att.map(a=>Math.round(a.r.acc*100)), timeS=att.map(a=>Math.round(a.r.timeSec/a.r.total));
+  const avgSyll=Math.round(ex.sections.reduce((s,x)=>s+x.syll,0)/ex.sections.length);
+  const readiness=latest?Math.round(0.6*latest.pct+0.4*avgSyll):0;
+  const tAgg=aggTopicAcc(att).filter(x=>x.t>=2).sort((a,b)=>b.acc-a.acc);
+  const strong=tAgg.slice(0,3), weak=[...tAgg].reverse().slice(0,3);
+  const secRows=latest?secs.map(s=>({lab:s,pct:latest.bySection[s]&&latest.bySection[s].t?Math.round(latest.bySection[s].c/latest.bySection[s].t*100):0})):[];
+  const recs=recList(att,null);
+  let nextIdx=null;for(let n=1;n<=FMOCK_N;n++){if(!MOCKR[fmKey(n)]){nextIdx=n;break;}}
+  let list="";
+  for(let n=1;n<=FMOCK_N;n++){const r=MOCKR[fmKey(n)];
+    list+=`<div class="sub-row"><span class="sdot" style="background:${r?'var(--brand)':'#454B55'}"></span><span class="sn">Full Mock ${n}</span>
+      ${r?`<span class="badge done">${r.pct}ile · ${Math.round(r.acc*100)}%</span>`:n===nextIdx?'<span class="badge rec">Start next</span>':'<span class="badge lock">🔒 locked</span>'}
+      <span class="ssp"></span><span class="sb">${r?`<button class="tbtn" data-go="fmAnalysis" data-n="${n}">View analysis</button>`
+        :n===nextIdx?`<button class="tbtn tl" data-startfull="1" data-n="${n}">Start full mock</button>`:`<button class="tbtn disabled" disabled>Locked</button>`}</span></div>`;
+  }
+  const rdColor=readiness>=70?'#69B88C':readiness>=50?'#ECD9A6':'#D08A52';
+  const recBox=`<div class="dbox full"><h4>Recommended learning path — priority order</h4>
+    <div class="rec-actions"><span style="font-size:12px;color:var(--text-3)">Ordered by impact across all mocks, connecting mocks → learning.</span><button class="refresh-btn" data-refreshrecs="1">↻ Refresh</button></div>
+    <div class="rec-list">${recs.length?recs.map((x,i)=>`<div class="rec warn"><span class="ri">${i+1}</span><span>${x.topic} <span style="color:var(--text-3)">(${x.sec})</span> — ${Math.round(x.acc*100)}% across mocks</span>
+      <button class="gp" data-go="topic" data-sec="${x.sec}" data-tid="${x.tid}">Go practice →</button></div>`).join('')
+      :'<div class="rec good"><span class="ri">✓</span><span>No outstanding weak topics — keep mocking to hold readiness.</span></div>'}</div></div>`;
+  return `<div class="wrap pg"><button class="back" data-go="home"><span class="a">←</span> Back to home</button>
+    <div class="sk">${EXAM} · full-length mocks</div><h2>Full mocks</h2>
+    <div class="full">Each mock spans all sections (${secs.join(", ")}). The dashboard aggregates every attempt; scores and analyses are preserved forever.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:var(--brand)">${att.length}<small>/${FMOCK_N}</small></div><div class="k">mocks attempted</div></div>
+      <div class="bs"><div class="v">${latest?latest.pct:'—'}<small>ile</small></div><div class="k">latest percentile</div></div>
+      <div class="bs"><div class="v">${best||'—'}<small>ile</small></div><div class="k">best percentile</div></div>
+      <div class="bs"><div class="readygauge"><span class="rv" style="color:${rdColor}">${readiness}%</span><span class="rl">predicted readiness</span></div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Score progression</h4><div class="plot">${lineSVG(scoreS.length>1?scoreS:[scoreS[0]||0,scoreS[0]||0],"#ECD9A6",{ymin:0,ymax:100})}</div></div>
+      <div class="dbox"><h4>Accuracy trend</h4><div class="plot">${lineSVG(accS.length>1?accS:[accS[0]||0,accS[0]||0],"#56B6AE",{ymin:0,ymax:100})}</div></div>
+      <div class="dbox"><h4>Time management (avg sec / question)</h4><div class="plot">${lineSVG(timeS.length>1?timeS:[timeS[0]||0,timeS[0]||0],"#E0A84E",{ymin:0})}</div></div>
+      <div class="dbox"><h4>Section-wise (latest mock)</h4>${accBars(secRows,"#ECD9A6")}</div>
+      <div class="dbox"><h4>Strongest topics</h4><div class="swlist">${strong.length?strong.map(x=>`<div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${x.topic}</span><span class="mv">${Math.round(x.acc*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+      <div class="dbox"><h4>Weakest topics</h4><div class="swlist">${weak.length?weak.map(x=>`<div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${x.topic}</span><span class="mv">${Math.round(x.acc*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+    </div>
+    ${recBox}
+    <div class="head" style="margin:14px 0 12px"><div><div class="idx"><span class="ln"></span>Mocks</div></div></div>
+    <div class="cluster">${list}</div>
+  </div>`;
+}
+
+/* ====================== VIEW : FULL MOCK ANALYSIS ====================== */
+function viewFmAnalysis(n){
+  const r=MOCKR[fmKey(n)],secs=allSections();
+  if(!r)return `<div class="wrap pg"><button class="back" data-go="fmArea"><span class="a">←</span> Full mocks</button><h2>Full Mock ${n}</h2><p class="full">Not attempted yet.</p></div>`;
+  const secAcc=secs.map(s=>({lab:s,pct:r.bySection[s]&&r.bySection[s].t?Math.round(r.bySection[s].c/r.bySection[s].t*100):0}));
+  const totT=secs.reduce((a,s)=>a+(r.bySection[s]?r.bySection[s].time:0),0)||1;
+  const tAgg=Object.values(r.byTopic).filter(t=>t.t>=1).map(t=>({lab:t.topic,pct:Math.round(t.c/t.t*100)})).sort((a,b)=>b.pct-a.pct);
+  const dRows=[1,2,3,4,5].map(d=>({lab:"d"+d,pct:r.byD[d].t?Math.round(r.byD[d].c/r.byD[d].t*100):0}));
+  const secStrong=[...secAcc].sort((a,b)=>b.pct-a.pct)[0], secWeak=[...secAcc].sort((a,b)=>a.pct-b.pct)[0];
+  return `<div class="wrap pg"><button class="back" data-go="fmArea"><span class="a">←</span> Full mocks</button>
+    <div class="sk">${EXAM} · full mock analysis</div><h2>Full Mock ${n}</h2>
+    <div class="full">Overall and section-by-section, preserved permanently.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:var(--brand)">${r.correct}<small>/${r.total}</small></div><div class="k">overall score</div></div>
+      <div class="bs"><div class="v">${Math.round(r.acc*100)}<small>%</small></div><div class="k">accuracy</div></div>
+      <div class="bs"><div class="v" style="color:var(--brand)">${r.pct}<small>ile</small></div><div class="k">percentile</div></div>
+      <div class="bs"><div class="v">${fmtT(r.timeSec)}</div><div class="k">total time</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Section-wise scores</h4>${accBars(secAcc,"#ECD9A6")}</div>
+      <div class="dbox"><h4>Time allocation across sections</h4>
+        <div class="splitbar" style="margin-top:4px">${secs.map((s,i)=>{const w=(r.bySection[s]?r.bySection[s].time:0)/totT*100;return `<div class="splitseg" style="width:${w}%;background:${[secColor(s)][0]}"></div>`;}).join('')}</div>
+        <div class="splitkey" style="flex-wrap:wrap">${secs.map(s=>`<span><i class="sw" style="background:${secColor(s)}"></i>${s} <b>${fmtT(r.bySection[s]?r.bySection[s].time:0)}</b></span>`).join('')}</div></div>
+      <div class="dbox"><h4>Difficulty-wise breakdown</h4>${accBars(dRows,"#ECD9A6")}</div>
+      <div class="dbox"><h4>Strong &amp; weak sections</h4><div class="swlist">
+        <div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${secStrong.lab}</span><span class="mv">${secStrong.pct}%</span></div>
+        <div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${secWeak.lab}</span><span class="mv">${secWeak.pct}%</span></div></div></div>
+      <div class="dbox full"><h4>Topic-wise breakdown</h4>${accBars(tAgg,"#ECD9A6")}</div>
+    </div>
+    <div class="head" style="margin:8px 0 12px"><div><div class="idx"><span class="ln"></span>Question review</div></div></div>
+    ${reviewList(r.perQ)}
+  </div>`;
+}
+
+/* ====================== VIEW : TOPIC PRACTICE ANALYSIS ====================== */
+function viewTopicPracticeAnalysis(sec,tid){
+  const f=findTopic(sec,tid),c=secColor(sec),r=TPRAC[topKey(sec,tid)];
+  if(!r)return `<div class="wrap pg"><button class="back" data-go="topic" data-sec="${sec}" data-tid="${tid}"><span class="a">←</span> ${f.t.name}</button><h2>${f.t.name} · Practice</h2><p class="full">No practice attempt yet — use “Practice questions” on the topic page.</p></div>`;
+  const e=emh(r.byD), subRows=(r.bySub||[]).sort((a,b)=>b.acc-a.acc);
+  const dRows=[1,2,3,4,5].map(d=>({lab:"d"+d,pct:r.byD[d].t?Math.round(r.byD[d].c/r.byD[d].t*100):0})).filter((x,i)=>r.byD[i+1].t);
+  const emhRows=[{lab:"Easy (d1–2)",g:e.easy},{lab:"Medium (d3)",g:e.med},{lab:"Hard (d4–5)",g:e.hard}].filter(x=>x.g.t).map(x=>({lab:x.lab,pct:Math.round(x.g.c/x.g.t*100)}));
+  const strong=subRows.filter(s=>s.t>=1&&s.acc>=0.7).slice(0,3), weak=[...subRows].filter(s=>s.acc<0.6).reverse().slice(0,3);
+  const recRevise=weak.map(w=>w.sub);
+  return `<div class="wrap pg"><button class="back" data-go="topic" data-sec="${sec}" data-tid="${tid}"><span class="a">←</span> ${f.t.name}</button>
+    <div class="sk">${EXAM} · ${sec} · topic practice analysis</div><h2>${f.t.name} — Practice</h2>
+    <div class="full">A topic-level practice test across every subtopic. This analysis stays available whenever you revisit the topic.</div></div>
+  <div class="wrap" style="padding-bottom:8px">
+    <div class="bigstat">
+      <div class="bs"><div class="v" style="color:${c}">${r.correct}<small>/${r.total}</small></div><div class="k">score</div></div>
+      <div class="bs"><div class="v">${Math.round(r.acc*100)}<small>%</small></div><div class="k">accuracy</div></div>
+      <div class="bs"><div class="v">${fmtT(r.timeSec/r.total)}</div><div class="k">avg time / question</div></div>
+      <div class="bs"><div class="v" style="color:${masteryLabel(topicMastery(sec,tid))[1]}">${topicMastery(sec,tid).toFixed(2)}</div><div class="k">topic mastery now</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dbox"><h4>Accuracy by subtopic</h4>${accBars(subRows.map(s=>({lab:s.sub,pct:Math.round(s.acc*100)})),c)}</div>
+      <div class="dbox"><h4>Accuracy by difficulty</h4>${accBars(dRows,c)}</div>
+      <div class="dbox"><h4>Time on easy / medium / hard</h4>
+        <div class="splitbar" style="margin-top:4px"><div class="splitseg" style="width:${e.easy.time/(r.timeSec||1)*100}%;background:#69B88C"></div><div class="splitseg" style="width:${e.med.time/(r.timeSec||1)*100}%;background:#E0A84E"></div><div class="splitseg" style="width:${e.hard.time/(r.timeSec||1)*100}%;background:#A8542B"></div></div>
+        <div class="splitkey"><span>Easy <b>${fmtT(e.easy.time)}</b></span><span>Med <b>${fmtT(e.med.time)}</b></span><span>Hard <b>${fmtT(e.hard.time)}</b></span></div></div>
+      <div class="dbox"><h4>Strongest subtopics</h4><div class="swlist">${strong.length?strong.map(s=>`<div class="swrow"><span class="sd" style="background:#69B88C"></span><span class="nm">${s.sub}</span><span class="mv">${Math.round(s.acc*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+      <div class="dbox"><h4>Weakest subtopics</h4><div class="swlist">${weak.length?weak.map(s=>`<div class="swrow"><span class="sd" style="background:#D08A52"></span><span class="nm">${s.sub}</span><span class="mv">${Math.round(s.acc*100)}%</span></div>`).join(''):'<div style="color:var(--text-3);font-size:12.5px">—</div>'}</div></div>
+      <div class="dbox"><h4>Common mistakes &amp; concepts to revise</h4><div class="rec-list">${mockInsights(r).slice(0,2).map(([t,x])=>`<div class="rec ${t}"><span class="ri">${t==='good'?'✓':'!'}</span><span>${x}</span></div>`).join('')}
+        ${recRevise.length?`<div class="rec warn"><span class="ri">→</span><span>Revise: ${recRevise.join(", ")}.</span></div>`:''}</div></div>
+    </div>
+    <div class="head" style="margin:8px 0 12px"><div><div class="idx"><span class="ln"></span>Question review</div></div></div>
+    ${reviewList(r.perQ)}
+  </div>`;
+}
+
+</script>
+</body>
+</html>

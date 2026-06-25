@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vettalume — Learning Playground</title>
+<style>
+  :root{
+    --bg:#14161c; --panel:#1b1e26; --panel2:#222632; --line:#2c313d;
+    --text:#e7e9ee; --text2:#aab0be; --text3:#727a8a;
+    --gold:#E0A84E; --teal:#56B6AE; --purple:#A18FE0;
+    --good:#69B88C; --warn:#D08A52; --bad:#cf6b6b;
+    --f: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono: ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f);font-size:15px;line-height:1.5}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+  h1{font-size:20px;margin:0;font-weight:650}
+  .sub{color:var(--text3);font-size:12.5px;font-family:var(--mono)}
+  .who{font-family:var(--mono);font-size:11.5px;color:var(--text3)}
+  button{font-family:var(--f);cursor:pointer;border:none;border-radius:9px;font-size:14px}
+  .btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 13px}
+  .btn:hover{border-color:var(--gold)}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:16px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .crumb{font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:10px}
+  .crumb b{color:var(--gold);font-weight:600}
+  .badge{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+  .b-learn{background:rgba(86,182,174,.15);color:var(--teal);border:1px solid rgba(86,182,174,.4)}
+  .b-revise{background:rgba(161,143,224,.15);color:var(--purple);border:1px solid rgba(161,143,224,.4)}
+  .b-master{background:rgba(105,184,140,.15);color:var(--good);border:1px solid rgba(105,184,140,.4)}
+  .rationale{font-size:12.5px;color:var(--text3);margin:8px 0 14px;font-family:var(--mono)}
+  .lesson{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:14px;color:var(--text2)}
+  .lesson code{background:rgba(0,0,0,.3);padding:1px 6px;border-radius:5px;font-family:var(--mono);color:var(--text)}
+  .stem{font-size:17px;font-weight:550;margin:6px 0 16px}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{text-align:left;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:12px 14px;transition:.12s}
+  .opt:hover:not(:disabled){border-color:var(--gold);background:#262b38}
+  .opt:disabled{cursor:default;opacity:.95}
+  .opt.correct{border-color:var(--good);background:rgba(105,184,140,.12)}
+  .opt.wrong{border-color:var(--bad);background:rgba(207,107,107,.12)}
+  .tita{display:flex;gap:9px}
+  .tita input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:12px 14px;font-family:var(--mono);font-size:15px}
+  .result{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .verdict{font-weight:650;font-size:15px}
+  .sol{font-size:13.5px;color:var(--text2);margin-top:6px;font-family:var(--mono)}
+  .mrow{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .mlabel{width:64px;font-size:12px;color:var(--text3);font-family:var(--mono)}
+  .bar{flex:1;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;transition:width .4s}
+  .mval{width:46px;text-align:right;font-family:var(--mono);font-size:12.5px;color:var(--text2)}
+  .pdm{display:flex;gap:14px;margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--text3)}
+  .pdm b{color:var(--text);font-weight:600}
+  .next{margin-top:16px}
+  .next button{background:var(--gold);color:#1a1206;font-weight:650;padding:11px 18px;width:100%}
+  .maptitle{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em}
+  .trow{padding:11px 0;border-bottom:1px solid var(--line)}
+  .trow:last-child{border-bottom:none}
+  .thead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .tname{font-size:14px;font-weight:550;display:flex;align-items:center;gap:7px}
+  .lock{font-size:11px;color:var(--text3)}
+  .star{color:var(--gold);font-size:12px}
+  .tm{font-family:var(--mono);font-size:12px;color:var(--text3)}
+  .cc{margin:7px 0 0 14px}
+  .crow{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12.5px;color:var(--text2)}
+  .cbar{flex:1;height:5px;border-radius:99px;background:var(--panel2);overflow:hidden}
+  .cbar i{display:block;height:100%}
+  .cm{width:36px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .note{margin-top:18px;font-size:11.5px;color:var(--text3);font-family:var(--mono);line-height:1.6}
+  .done{text-align:center;padding:30px 10px;color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Vettalume · Learning Playground</h1>
+      <div class="sub">a visual test client for the Phase 1 engine — drives the real /learn endpoints</div>
+    </div>
+    <div style="text-align:right">
+      <button class="btn" onclick="resetLearner()">↻ New learner</button>
+      <div class="who" id="who">connecting…</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card" id="stage"><div class="done">Loading…</div></div>
+    <div class="card">
+      <div class="maptitle">CAT · Quant — your map</div>
+      <div id="map"></div>
+      <div class="note" id="note"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAM="CAT", SECTION="QA";
+let learnerId=null, current=null, answered=false;
+
+const api=(path,opts={})=>fetch(path,{...opts,headers:{"Content-Type":"application/json","X-Learner-Id":learnerId||"",...(opts.headers||{})}}).then(r=>r.json());
+const masterColor=m=>m>=0.74?"var(--good)":m>=0.4?"var(--gold)":m>=0.15?"var(--warn)":"var(--text3)";
+const esc=s=>(s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+async function login(){
+  const email="play-"+Math.random().toString(36).slice(2,10)+"@vettalume.test";
+  const r=await fetch("/auth/dev-login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})}).then(r=>r.json());
+  learnerId=r.learner_id;
+  document.getElementById("who").textContent="learner "+learnerId.slice(0,8)+"…";
+}
+async function resetLearner(){ await login(); await loadNext(); await loadMap(); }
+
+async function loadNext(){
+  answered=false;
+  const n=await api(`/learn/next?exam=${EXAM}&section=${SECTION}`);
+  current=n;
+  const stage=document.getElementById("stage");
+  if(n.status!=="ok"){
+    stage.innerHTML=`<div class="done"><div style="font-size:34px;margin-bottom:8px">🎉</div>
+      <div style="font-weight:600;color:var(--text)">${esc(n.message||"Nothing left to do here.")}</div>
+      <div style="margin-top:6px;font-size:13px">Every unlocked topic is mastered. Hit “New learner” to start fresh.</div></div>`;
+    return;
+  }
+  const q=n.question, isMcq=q.options && q.options.length>0;
+  const modeBadge=n.mode==="learn"?`<span class="badge b-learn">LEARN — new concept</span>`:`<span class="badge b-revise">REVISE</span>`;
+  const lesson=n.theory&&n.theory.lines?`<div class="lesson"><b style="color:var(--teal)">Lesson · ${esc(n.concept.name)}</b><br>${n.theory.lines.map(l=>l).join("<br>")}</div>`:"";
+  const opts=isMcq
+    ? `<div class="opts" id="opts">${q.options.map((o,i)=>`<button class="opt" data-v="${esc(o)}" onclick="answer('${encodeURIComponent(o)}')">${esc(o)}</button>`).join("")}</div>`
+    : `<div class="tita"><input id="tita" placeholder="type your answer" onkeydown="if(event.key==='Enter')answerTita()"/><button class="btn" onclick="answerTita()">Submit</button></div>`;
+  stage.innerHTML=`
+    <div class="crumb"><b>${esc(n.topic.name)}</b> › ${esc(n.concept.name)} ${modeBadge}</div>
+    <div class="rationale">${esc(n.rationale||"")}</div>
+    ${lesson}
+    <div class="stem">${esc(q.stem)}</div>
+    ${opts}
+    <div id="result"></div>`;
+}
+
+function answerTita(){ const v=document.getElementById("tita").value.trim(); if(v) answer(encodeURIComponent(v)); }
+
+async function answer(encv){
+  if(answered) return; answered=true;
+  const val=decodeURIComponent(encv);
+  const out=await api("/learn/answer",{method:"POST",body:JSON.stringify({item_id:current.question.item_id,answer_given:val})});
+
+  // mark options
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.disabled=true;
+    const bv=b.getAttribute("data-v");
+    if(bv===val) b.classList.add(out.correct?"correct":"wrong");
+  });
+  const b=out.breakdown;
+  const v=out.correct?`<span style="color:var(--good)">✓ Correct</span>`:`<span style="color:var(--bad)">✗ Not quite</span>`;
+  const masterTag=out.mastered?`<span class="badge b-master">MASTERED</span>`:"";
+  document.getElementById("result").innerHTML=`
+    <div class="result">
+      <div class="verdict">${v} ${masterTag}</div>
+      ${out.solution?`<div class="sol">${esc(out.solution)}</div>`:""}
+      <div class="mrow">
+        <div class="mlabel">mastery</div>
+        <div class="bar"><i style="width:${(out.mastery*100).toFixed(0)}%;background:${masterColor(out.mastery)}"></i></div>
+        <div class="mval">${out.mastery.toFixed(2)}</div>
+      </div>
+      <div class="pdm">
+        <span>P <b>${b.P.toFixed(2)}</b></span>
+        <span>D <b>${b.D.toFixed(2)}</b></span>
+        <span>M <b>${b.M.toFixed(2)}</b></span>
+        <span>edge <b>${out.edge.toFixed(1)}</b></span>
+        <span>attempts <b>${out.attempts}</b></span>
+      </div>
+      <div class="next"><button onclick="loadNext()">Next question →</button></div>
+    </div>`;
+  await loadMap();
+}
+
+async function loadMap(){
+  const m=await api(`/learn/map?exam=${EXAM}&section=${SECTION}`);
+  const el=document.getElementById("map");
+  el.innerHTML=(m.topics||[]).map(t=>{
+    const lock=t.locked?`<span class="lock">🔒 needs ${t.prereqs.join(", ")}</span>`:"";
+    const star=t.recommended?`<span class="star">★ next</span>`:"";
+    const concepts=(t.concepts||[]).map(c=>`
+      <div class="crow">
+        <span style="flex:0 0 120px">${esc(c.name)}</span>
+        <span class="cbar"><i style="width:${(c.mastery*100).toFixed(0)}%;background:${masterColor(c.mastery)}"></i></span>
+        <span class="cm">${c.mastery.toFixed(2)}</span>
+      </div>`).join("");
+    return `<div class="trow">
+      <div class="thead">
+        <div class="tname">${esc(t.name)} ${star}</div>
+        <div class="tm">${t.locked?"":t.mastery.toFixed(2)}</div>
+      </div>
+      ${lock}
+      <div class="cc">${concepts}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("note").innerHTML=
+    "Answer correctly to push mastery past 0.74 (mastered). Mastering a topic's prerequisites "+
+    "unlocks the 🔒 topics — e.g. master Ratio &amp; Proportion to open Mixtures.";
+}
+
+(async()=>{ await login(); await loadNext(); await loadMap(); })();
+</script>
+</body>
+</html>

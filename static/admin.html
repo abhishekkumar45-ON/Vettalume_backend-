@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vettalume · Admin</title>
+<style>
+  :root{
+    --paper:#0E1116; --panel:#141922; --panel-2:#1A2029; --line:#232b36; --line-2:#2c3542;
+    --ink:#E8EDF2; --ink-2:#AEB7C2; --ink-3:#79828E; --gold:#E0A84E; --glacier:#56B6AE;
+    --violet:#A18FE0; --ok:#69B88C; --warn:#D08A52; --bad:#D86C6C;
+    --f-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --f-sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:14px;line-height:1.5}
+  a{color:var(--glacier)}
+  code,.mono{font-family:var(--f-mono)}
+  .hidden{display:none!important}
+  /* top bar */
+  header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:12px 20px;background:rgba(14,17,22,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .brand{font-family:var(--f-mono);font-weight:600;letter-spacing:.04em}
+  .brand b{color:var(--gold)}
+  .pill{font-family:var(--f-mono);font-size:11px;padding:3px 9px;border:1px solid var(--line-2);border-radius:99px;color:var(--ink-2)}
+  .spacer{flex:1}
+  .who{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+  .btn{font-family:var(--f-mono);font-size:12.5px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer;transition:.15s}
+  .btn:hover{border-color:var(--ink-3)}
+  .btn.gold{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:600}
+  .btn.ghost{background:transparent}
+  .btn.danger{color:var(--bad);border-color:#46282b}
+  .btn.sm{padding:4px 9px;font-size:11.5px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* layout */
+  main{max-width:1180px;margin:0 auto;padding:22px 20px 80px}
+  .tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+  .tab{font-family:var(--f-mono);font-size:12.5px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink-2);cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--panel-2);color:var(--ink);border-color:var(--line-2)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px;margin-bottom:16px}
+  .card h3{margin:0 0 4px;font-size:15px}
+  .card .sub{color:var(--ink-3);font-size:12.5px;margin-bottom:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  label{display:block;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);margin:0 0 4px}
+  input,select,textarea{width:100%;background:var(--panel-2);border:1px solid var(--line-2);color:var(--ink);border-radius:8px;padding:8px 10px;font-family:var(--f-sans);font-size:13px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--glacier)}
+  textarea{min-height:64px;resize:vertical;font-family:var(--f-mono);font-size:12.5px}
+  .field{flex:1;min-width:120px}
+  .field.sm{flex:0 0 110px}
+  .muted{color:var(--ink-3)}
+  .tag{font-family:var(--f-mono);font-size:10.5px;padding:2px 7px;border-radius:5px;border:1px solid var(--line-2);color:var(--ink-2)}
+  .tag.ok{color:var(--ok);border-color:#2c4636}
+  .tag.draft{color:var(--gold);border-color:#4a3a1c}
+  .tag.retired{color:var(--ink-3)}
+  /* syllabus tree */
+  .sec{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .sec>.hd{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--panel-2)}
+  .sec .k{font-family:var(--f-mono);font-weight:600}
+  .topic{border-top:1px solid var(--line);padding:10px 14px 10px 22px}
+  .topic>.hd{display:flex;align-items:center;gap:8px}
+  .topic .tn{font-weight:600;font-size:13.5px}
+  .concept{display:flex;align-items:center;gap:8px;padding:6px 0 6px 22px;border-top:1px dashed var(--line);margin-top:6px}
+  .concept:first-of-type{border-top:none;margin-top:4px}
+  .cid{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+  .dot{width:7px;height:7px;border-radius:99px;background:var(--glacier);flex:none}
+  .count{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3)}
+  .pre{font-family:var(--f-mono);font-size:10px;color:var(--violet)}
+  /* items */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+  td .stem{max-width:380px}
+  .ans{font-family:var(--f-mono);color:var(--ok)}
+  /* upload */
+  .drop{border:1.5px dashed var(--line-2);border-radius:12px;padding:26px;text-align:center;color:var(--ink-3);background:var(--panel-2);cursor:pointer}
+  .drop.drag{border-color:var(--glacier);color:var(--ink)}
+  pre.report{background:#0a0d12;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:var(--f-mono);font-size:11.5px;white-space:pre-wrap;color:var(--ink-2);max-height:340px;overflow:auto}
+  /* login */
+  .login-wrap{min-height:78vh;display:flex;align-items:center;justify-content:center}
+  .login{width:360px;max-width:92vw}
+  .err{color:var(--bad);font-family:var(--f-mono);font-size:12px;margin-top:8px}
+  .ok-msg{color:var(--ok);font-family:var(--f-mono);font-size:12px;margin-top:8px}
+  .hint{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);margin-top:14px;line-height:1.7}
+  dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:14px;padding:0;width:560px;max-width:94vw}
+  dialog::backdrop{background:rgba(0,0,0,.6)}
+  .dlg-hd{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+  .dlg-bd{padding:16px 18px;max-height:70vh;overflow:auto}
+  .dlg-ft{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:10px 16px;font-family:var(--f-mono);font-size:12px;z-index:50;opacity:0;transition:.2s}
+  .toast.show{opacity:1}
+  .toast.bad{border-color:#46282b;color:var(--bad)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginView" class="login-wrap">
+  <div class="card login">
+    <div class="brand" style="font-size:16px;margin-bottom:2px">vetta<b>lume</b> · admin</div>
+    <div class="sub">Content team only. Sign in with an admin account.</div>
+    <div style="margin-bottom:10px"><label>Email</label><input id="loginEmail" type="email" placeholder="you@yourco.com" autocomplete="username"></div>
+    <div><label>Password</label><input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <div style="margin-top:14px"><button class="btn gold" style="width:100%" id="loginBtn">Sign in</button></div>
+    <div id="loginMsg"></div>
+    <div class="hint">No admin yet? On the server run:<br><code>python -m scripts.create_admin you@co.com "password"</code><br>then sign in here.</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="brand">vetta<b>lume</b></div>
+    <span class="pill">admin portal</span>
+    <div class="spacer"></div>
+    <span class="who" id="whoami"></span>
+    <button class="btn ghost sm" id="logoutBtn">Sign out</button>
+  </header>
+  <main>
+    <div class="tabs" id="tabs">
+      <button class="tab" data-tab="syllabus" aria-selected="true">Syllabus</button>
+      <button class="tab" data-tab="items" aria-selected="false">Questions</button>
+      <button class="tab" data-tab="upload" aria-selected="false">Bulk upload</button>
+      <button class="tab" data-tab="admins" aria-selected="false">Admins</button>
+    </div>
+
+    <!-- SYLLABUS -->
+    <section id="tab-syllabus">
+      <div class="card">
+        <div class="row" style="align-items:flex-end">
+          <div class="field sm"><label>Exam</label><select id="sylExam"></select></div>
+          <button class="btn sm" id="reloadSyl">Reload</button>
+          <div class="spacer"></div>
+          <button class="btn sm" id="addExamBtn">+ Exam</button>
+          <button class="btn sm" id="addSecBtn">+ Section</button>
+          <button class="btn sm" id="addTopicBtn">+ Topic</button>
+          <button class="btn sm gold" id="addConBtn">+ Concept</button>
+          <button class="btn sm" id="addPreBtn">+ Prerequisite</button>
+        </div>
+      </div>
+      <div id="sylTree"></div>
+    </section>
+
+    <!-- ITEMS -->
+    <section id="tab-items" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div class="field sm"><label>Exam</label><select id="itExam"></select></div>
+          <div class="field"><label>Concept id (optional)</label><input id="itConcept" placeholder="e.g. avg-simple"></div>
+          <div class="field sm"><label>Status</label><select id="itStatus"><option value="">any</option><option>approved</option><option>draft</option><option>retired</option></select></div>
+          <button class="btn" id="itLoad">Filter</button>
+          <div class="spacer"></div>
+          <button class="btn gold" id="addItemBtn">+ New question</button>
+        </div>
+      </div>
+      <div class="card"><div id="itemsTable"><div class="muted">Pick an exam and hit Filter.</div></div></div>
+    </section>
+
+    <!-- UPLOAD -->
+    <section id="tab-upload" class="hidden">
+      <div class="card">
+        <h3>Bulk question-bank upload</h3>
+        <div class="sub">An <code>.xlsx</code> with one sheet per exam (tab named CAT / GMAT / GRE) or a single sheet with an <code>Exam</code> column. Builds the graph from Topic / Subtopic / Prerequisites and ingests every question atomically. This is the workhorse for volume.</div>
+        <div class="drop" id="drop">Drop your workbook here, or <span style="color:var(--glacier);text-decoration:underline">choose a file</span><input id="file" type="file" accept=".xlsx" class="hidden"></div>
+        <div id="uploadMsg" style="margin-top:12px"></div>
+        <pre class="report hidden" id="report"></pre>
+      </div>
+    </section>
+
+    <!-- ADMINS -->
+    <section id="tab-admins" class="hidden">
+      <div class="card">
+        <h3>Admins</h3>
+        <div class="sub">Anyone here can author content and manage admins. Grant by email (they must have registered first). Accounts listed in the <code>ADMIN_EMAILS</code> env var are also admins.</div>
+        <div class="row">
+          <div class="field"><label>Grant admin to email</label><input id="grantEmail" placeholder="teammate@yourco.com"></div>
+          <button class="btn gold" id="grantBtn">Grant</button>
+        </div>
+        <div id="adminsMsg" style="margin-top:8px"></div>
+      </div>
+      <div class="card"><div id="adminsTable"></div></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-hd"><b id="dlgTitle">—</b><div class="spacer"></div></div>
+  <div class="dlg-bd" id="dlgBody"></div>
+  <div class="dlg-ft"><button class="btn ghost" id="dlgCancel">Cancel</button><button class="btn gold" id="dlgOk">Save</button></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API={base:"",token:localStorage.getItem("vl_admin_token")||null,me:null};
+async function req(method,path,opt){opt=opt||{};
+  let url=API.base+path;const q=opt.q;
+  if(q){const ps=Object.entries(q).filter(([,v])=>v!=null&&v!=="").map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(v));if(ps.length)url+="?"+ps.join("&");}
+  const o={method,headers:{}};if(API.token)o.headers.Authorization="Bearer "+API.token;
+  if(opt.body!=null){o.headers["Content-Type"]="application/json";o.body=JSON.stringify(opt.body);}
+  if(opt.form){o.body=opt.form;}
+  const r=await fetch(url,o);let d=null;try{d=await r.json();}catch(e){}
+  if(!r.ok)throw Object.assign(new Error((d&&d.detail)||("HTTP "+r.status)),{status:r.status,data:d});
+  return d;}
+const get=(p,q)=>req("GET",p,{q});
+const post=(p,body)=>req("POST",p,{body});
+const patch=(p,body)=>req("PATCH",p,{body});
+const del=(p,body)=>req("DELETE",p,{body});
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let TOAST_T;
+function toast(msg,bad){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show"+(bad?" bad":"");clearTimeout(TOAST_T);TOAST_T=setTimeout(()=>t.className="toast",2600);}
+
+/* ---------- auth ---------- */
+async function tryEnter(){
+  if(!API.token)return showLogin();
+  try{API.me=await get("/admin/me");showApp();}
+  catch(e){API.token=null;localStorage.removeItem("vl_admin_token");showLogin(e.status===403?"That account is not an admin.":"");}
+}
+function showLogin(msg){document.getElementById("appView").classList.add("hidden");document.getElementById("loginView").classList.remove("hidden");
+  if(msg)document.getElementById("loginMsg").innerHTML='<div class="err">'+esc(msg)+'</div>';}
+function showApp(){document.getElementById("loginView").classList.add("hidden");document.getElementById("appView").classList.remove("hidden");
+  document.getElementById("whoami").textContent=API.me.email;
+  loadExamsInto(["sylExam","itExam"]).then(()=>loadSyllabus());}
+document.getElementById("loginBtn").onclick=async()=>{
+  const email=document.getElementById("loginEmail").value.trim(),password=document.getElementById("loginPass").value;
+  const m=document.getElementById("loginMsg");m.innerHTML="";
+  if(!email||!password){m.innerHTML='<div class="err">Enter email and password.</div>';return;}
+  try{const r=await req("POST","/auth/login",{body:{email,password}});API.token=r.access_token;localStorage.setItem("vl_admin_token",API.token);
+    API.me=await get("/admin/me");showApp();}
+  catch(e){m.innerHTML='<div class="err">'+esc(e.status===403?"Signed in, but this account is not an admin.":(e.message||"Sign-in failed."))+'</div>';
+    if(e.status===403){API.token=null;localStorage.removeItem("vl_admin_token");}}
+};
+document.getElementById("loginPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("loginBtn").click();});
+document.getElementById("logoutBtn").onclick=()=>{API.token=null;API.me=null;localStorage.removeItem("vl_admin_token");showLogin();};
+
+/* ---------- tabs ---------- */
+document.getElementById("tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t?"true":"false"));
+  ["syllabus","items","upload","admins"].forEach(n=>document.getElementById("tab-"+n).classList.toggle("hidden",n!==t.dataset.tab));
+  if(t.dataset.tab==="admins")loadAdmins();
+});
+
+/* ---------- exams ---------- */
+async function loadExamsInto(ids){const ex=await get("/admin/exams");
+  ids.forEach(id=>{const s=document.getElementById(id);const cur=s.value;
+    s.innerHTML=ex.map(e=>`<option value="${esc(e.code)}">${esc(e.code)} — ${esc(e.name)}</option>`).join("");
+    if(cur)s.value=cur;});
+  return ex;}
+
+/* ---------- syllabus ---------- */
+document.getElementById("reloadSyl").onclick=loadSyllabus;
+document.getElementById("sylExam").onchange=loadSyllabus;
+async function loadSyllabus(){
+  const exam=document.getElementById("sylExam").value;if(!exam)return;
+  const box=document.getElementById("sylTree");box.innerHTML='<div class="muted">Loading…</div>';
+  let d;try{d=await get("/admin/syllabus",{exam});}catch(e){box.innerHTML='<div class="err">'+esc(e.message)+'</div>';return;}
+  const nodes=d.nodes,bySec={};d.sections.forEach(s=>bySec[s.key]={sec:s,topics:[]});
+  const topics=nodes.filter(n=>n.kind==="topic"),concepts=nodes.filter(n=>n.kind==="concept");
+  const childOf={};concepts.forEach(c=>{(childOf[c.parent_id]=childOf[c.parent_id]||[]).push(c);});
+  const orphanBySec={};concepts.filter(c=>!c.parent_id||!topics.find(t=>t.id===c.parent_id)).forEach(c=>{(orphanBySec[c.section]=orphanBySec[c.section]||[]).push(c);});
+  let html="";
+  d.sections.forEach(s=>{
+    const secTopics=topics.filter(t=>t.section===s.key);
+    html+=`<div class="sec"><div class="hd"><span class="k">${esc(s.key)}</span><span class="muted">${esc(s.name)}</span><div class="spacer" style="flex:1"></div></div>`;
+    if(!secTopics.length && !(orphanBySec[s.key]||[]).length) html+=`<div class="topic"><span class="muted">No topics yet — add one.</span></div>`;
+    secTopics.forEach(t=>{
+      html+=`<div class="topic"><div class="hd"><span class="tn">${esc(t.name)}</span><span class="cid">${esc(t.id)}</span>
+        <div class="spacer" style="flex:1"></div><button class="btn sm danger" data-delnode="${esc(t.id)}">delete</button></div>`;
+      (childOf[t.id]||[]).forEach(c=>{html+=conceptRow(c);});
+      if(!(childOf[t.id]||[]).length)html+=`<div class="concept"><span class="muted" style="padding-left:22px">no concepts</span></div>`;
+      html+=`</div>`;
+    });
+    if((orphanBySec[s.key]||[]).length){
+      html+=`<div class="topic"><div class="hd"><span class="tn">General</span><span class="cid">(no parent topic)</span></div>`;
+      orphanBySec[s.key].forEach(c=>{html+=conceptRow(c);});html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+  box.innerHTML=html||'<div class="muted">No sections. Add one to begin.</div>';
+}
+function conceptRow(c){
+  return `<div class="concept"><span class="dot"></span><span>${esc(c.name)}</span><span class="cid">${esc(c.id)}</span>
+    <span class="count">${c.item_count} items</span>${c.prereqs&&c.prereqs.length?`<span class="pre">⟵ ${c.prereqs.map(esc).join(", ")}</span>`:""}
+    <div class="spacer" style="flex:1"></div><button class="btn sm danger" data-delnode="${esc(c.id)}">delete</button></div>`;
+}
+document.getElementById("sylTree").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-delnode]");if(!b)return;
+  if(!confirm("Delete node "+b.dataset.delnode+"? (must have no child concepts or items)"))return;
+  try{await del("/admin/nodes/"+encodeURIComponent(b.dataset.delnode));toast("Deleted");loadSyllabus();}
+  catch(err){toast(err.message,true);}
+});
+
+/* add-buttons -> dialog forms */
+const dlg=document.getElementById("dlg");let dlgSubmit=null;
+function openDlg(title,bodyHtml,onOk){document.getElementById("dlgTitle").textContent=title;document.getElementById("dlgBody").innerHTML=bodyHtml;dlgSubmit=onOk;dlg.showModal();}
+document.getElementById("dlgCancel").onclick=()=>dlg.close();
+document.getElementById("dlgOk").onclick=async()=>{if(!dlgSubmit)return;try{await dlgSubmit();dlg.close();}catch(e){toast(e.message,true);}};
+function val(id){return document.getElementById(id).value.trim();}
+function secOptions(){const s=document.getElementById("sylExam");return [...document.getElementById("sylTree").querySelectorAll(".sec .k")].map(x=>x.textContent);}
+
+document.getElementById("addExamBtn").onclick=()=>openDlg("New exam",
+  `<div class="grid2"><div><label>Code</label><input id="f_code" placeholder="CAT"></div><div><label>Name</label><input id="f_name" placeholder="Common Admission Test"></div></div>`,
+  async()=>{await post("/admin/exams",{code:val("f_code"),name:val("f_name")});toast("Exam created");await loadExamsInto(["sylExam","itExam"]);loadSyllabus();});
+
+document.getElementById("addSecBtn").onclick=()=>openDlg("New section",
+  `<div class="grid2"><div><label>Exam</label><input id="f_exam" value="${esc(document.getElementById("sylExam").value)}"></div><div><label>Key</label><input id="f_key" placeholder="QA"></div></div>
+   <div style="margin-top:8px"><label>Name</label><input id="f_name" placeholder="Quantitative Ability"></div>`,
+  async()=>{await post("/admin/sections",{exam_code:val("f_exam"),key:val("f_key"),name:val("f_name")});toast("Section created");loadSyllabus();});
+
+document.getElementById("addTopicBtn").onclick=()=>openDlg("New topic",
+  `<div class="grid2"><div><label>Exam</label><input id="f_exam" value="${esc(document.getElementById("sylExam").value)}"></div><div><label>Section key</label><input id="f_sec" placeholder="QA"></div></div>
+   <div class="grid2" style="margin-top:8px"><div><label>Topic id</label><input id="f_id" placeholder="time-speed-distance"></div><div><label>Name</label><input id="f_name" placeholder="Time, Speed & Distance"></div></div>`,
+  async()=>{await post("/admin/topics",{id:val("f_id"),exam_code:val("f_exam"),section_key:val("f_sec"),name:val("f_name")});toast("Topic created");loadSyllabus();});
+
+document.getElementById("addConBtn").onclick=()=>openDlg("New concept",
+  `<div class="grid2"><div><label>Exam</label><input id="f_exam" value="${esc(document.getElementById("sylExam").value)}"></div><div><label>Section key</label><input id="f_sec" placeholder="QA"></div></div>
+   <div class="grid2" style="margin-top:8px"><div><label>Concept id</label><input id="f_id" placeholder="tsd-basics"></div><div><label>Name</label><input id="f_name" placeholder="TSD basics"></div></div>
+   <div style="margin-top:8px"><label>Parent topic id (recommended)</label><input id="f_parent" placeholder="time-speed-distance"></div>`,
+  async()=>{await post("/admin/concepts",{id:val("f_id"),exam_code:val("f_exam"),section_key:val("f_sec"),name:val("f_name"),parent_id:val("f_parent")||null});toast("Concept created");loadSyllabus();});
+
+document.getElementById("addPreBtn").onclick=()=>openDlg("Add prerequisite",
+  `<div><label>Concept (node id) that has a prerequisite</label><input id="f_node" placeholder="tsd-basics"></div>
+   <div style="margin-top:8px"><label>requires (prereq node id)</label><input id="f_pre" placeholder="avg-simple"></div>`,
+  async()=>{await post("/admin/prereqs",{node_id:val("f_node"),prereq_node_id:val("f_pre")});toast("Prerequisite added");loadSyllabus();});
+
+/* ---------- items ---------- */
+document.getElementById("itLoad").onclick=loadItems;
+async function loadItems(){
+  const box=document.getElementById("itemsTable");box.innerHTML='<div class="muted">Loading…</div>';
+  const q={exam:document.getElementById("itExam").value,concept:val("itConcept"),status:document.getElementById("itStatus").value};
+  let d;try{d=await get("/admin/items",q);}catch(e){box.innerHTML='<div class="err">'+esc(e.message)+'</div>';return;}
+  if(!d.items.length){box.innerHTML='<div class="muted">No questions match.</div>';return;}
+  let h=`<table><thead><tr><th>id</th><th>concept</th><th>d</th><th>stem</th><th>answer</th><th>status</th><th></th></tr></thead><tbody>`;
+  d.items.forEach(it=>{
+    const st=it.status==="approved"?"ok":it.status==="retired"?"retired":"draft";
+    h+=`<tr><td class="mono">${esc(it.item_id)}<div class="cid">v${it.version}</div></td><td class="mono">${esc(it.concept_node_id)}</td><td class="mono">${it.difficulty_d}</td>
+      <td class="stem">${esc(it.stem)}</td><td class="ans">${esc(it.correct_answer)}</td><td><span class="tag ${st}">${esc(it.status)}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn sm" data-edit='${esc(JSON.stringify(it))}'>edit</button>
+        ${it.status!=="approved"?`<button class="btn sm" data-approve="${esc(it.item_id)}">approve</button>`:""}
+        ${it.status!=="retired"?`<button class="btn sm" data-retire="${esc(it.item_id)}">retire</button>`:""}
+        <button class="btn sm danger" data-delitem="${esc(it.item_id)}">del</button>
+      </td></tr>`;
+  });
+  h+=`</tbody></table><div class="muted" style="margin-top:8px">${d.count} shown</div>`;
+  box.innerHTML=h;
+}
+document.getElementById("itemsTable").addEventListener("click",async e=>{
+  const ap=e.target.closest("[data-approve]"),rt=e.target.closest("[data-retire]"),dl=e.target.closest("[data-delitem]"),ed=e.target.closest("[data-edit]");
+  try{
+    if(ap){await post("/admin/items/"+encodeURIComponent(ap.dataset.approve)+"/approve");toast("Approved");loadItems();}
+    else if(rt){await post("/admin/items/"+encodeURIComponent(rt.dataset.retire)+"/retire");toast("Retired");loadItems();}
+    else if(dl){if(confirm("Delete "+dl.dataset.delitem+"?")){await del("/admin/items/"+encodeURIComponent(dl.dataset.delitem));toast("Deleted");loadItems();}}
+    else if(ed){editItem(JSON.parse(ed.dataset.edit));}
+  }catch(err){toast(err.message,true);}
+});
+function editItem(it){
+  openDlg("Edit "+it.item_id,
+    `<div><label>Stem</label><textarea id="e_stem">${esc(it.stem)}</textarea></div>
+     <div style="margin-top:8px"><label>Options (one per line)</label><textarea id="e_opts">${esc((it.options||[]).join("\n"))}</textarea></div>
+     <div class="grid2" style="margin-top:8px"><div><label>Correct answer</label><input id="e_ans" value="${esc(it.correct_answer)}"></div><div><label>Difficulty d (−2..2)</label><input id="e_d" type="number" min="-2" max="2" value="${it.difficulty_d}"></div></div>
+     <div style="margin-top:8px"><label>Solution</label><textarea id="e_sol">${esc(it.solution||"")}</textarea></div>`,
+    async()=>{const opts=val("e_opts").split("\n").map(x=>x.trim()).filter(Boolean);
+      await patch("/admin/items/"+encodeURIComponent(it.item_id),{stem:val("e_stem"),options:opts.length?opts:null,correct_answer:val("e_ans"),difficulty_d:parseInt(document.getElementById("e_d").value,10),solution:val("e_sol")});
+      toast("Saved");loadItems();});
+}
+document.getElementById("addItemBtn").onclick=()=>{
+  const exam=document.getElementById("itExam").value;
+  openDlg("New question",
+    `<div class="grid2"><div><label>Item id</label><input id="n_id" placeholder="tsd-101"></div><div><label>Exam</label><input id="n_exam" value="${esc(exam)}"></div></div>
+     <div class="grid2" style="margin-top:8px"><div><label>Section key</label><input id="n_sec" placeholder="QA"></div><div><label>Concept node id</label><input id="n_con" placeholder="tsd-basics"></div></div>
+     <div style="margin-top:8px"><label>Stem</label><textarea id="n_stem" placeholder="A car travels…"></textarea></div>
+     <div style="margin-top:8px"><label>Options (one per line)</label><textarea id="n_opts" placeholder="10\n20\n30\n40"></textarea></div>
+     <div class="grid2" style="margin-top:8px"><div><label>Correct answer</label><input id="n_ans" placeholder="20"></div><div><label>Difficulty d (−2..2)</label><input id="n_d" type="number" min="-2" max="2" value="0"></div></div>
+     <div style="margin-top:8px"><label>Solution</label><textarea id="n_sol"></textarea></div>
+     <div style="margin-top:8px"><label>Status</label><select id="n_status"><option>draft</option><option>approved</option></select></div>`,
+    async()=>{const opts=val("n_opts").split("\n").map(x=>x.trim()).filter(Boolean);
+      const rep=await post("/admin/items",{item_id:val("n_id"),exam_code:val("n_exam"),section_key:val("n_sec"),concept_node_id:val("n_con"),
+        difficulty_d:parseInt(document.getElementById("n_d").value,10),format:"mcq",options:opts.length?opts:null,correct_answer:val("n_ans"),
+        stem:val("n_stem"),solution:val("n_sol")||null,status:document.getElementById("n_status").value});
+      if(rep.status==="rejected")throw new Error((rep.errors&&rep.errors[0]&&rep.errors[0].error)||"rejected");
+      toast("Question created");loadItems();});
+};
+
+/* ---------- upload ---------- */
+const drop=document.getElementById("drop"),fileInput=document.getElementById("file");
+drop.onclick=()=>fileInput.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag");};
+drop.ondragleave=()=>drop.classList.remove("drag");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("drag");if(e.dataTransfer.files[0])doUpload(e.dataTransfer.files[0]);};
+fileInput.onchange=()=>{if(fileInput.files[0])doUpload(fileInput.files[0]);};
+async function doUpload(file){
+  const msg=document.getElementById("uploadMsg"),rep=document.getElementById("report");
+  msg.innerHTML='<span class="muted mono">Uploading '+esc(file.name)+'…</span>';rep.classList.add("hidden");
+  const fd=new FormData();fd.append("file",file);
+  try{const d=await req("POST","/admin/items/upload-xlsx",{form:fd});
+    msg.innerHTML='<span class="ok-msg">Imported.</span>';rep.textContent=JSON.stringify(d,null,2);rep.classList.remove("hidden");
+    toast("Workbook imported");}
+  catch(e){msg.innerHTML='<div class="err">'+esc(e.message)+'</div>';if(e.data){rep.textContent=JSON.stringify(e.data,null,2);rep.classList.remove("hidden");}}
+}
+
+/* ---------- admins ---------- */
+document.getElementById("grantBtn").onclick=async()=>{
+  const email=document.getElementById("grantEmail").value.trim();const m=document.getElementById("adminsMsg");
+  if(!email)return;
+  try{await post("/admin/admins",{email});m.innerHTML='<div class="ok-msg">Granted.</div>';document.getElementById("grantEmail").value="";loadAdmins();}
+  catch(e){m.innerHTML='<div class="err">'+esc(e.message)+'</div>';}
+};
+async function loadAdmins(){
+  const box=document.getElementById("adminsTable");box.innerHTML='<div class="muted">Loading…</div>';
+  let rows;try{rows=await get("/admin/admins");}catch(e){box.innerHTML='<div class="err">'+esc(e.message)+'</div>';return;}
+  if(!rows.length){box.innerHTML='<div class="muted">No explicitly-granted admins (env ADMIN_EMAILS accounts are admins too).</div>';return;}
+  let h=`<table><thead><tr><th>email</th><th>role</th><th></th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr><td>${esc(r.email||"—")}<div class="cid">${esc(r.account_id)}</div></td><td class="mono">${esc(r.role)}</td>
+    <td><button class="btn sm danger" data-revoke="${esc(r.account_id)}" ${API.me&&API.me.account_id===r.account_id?"disabled title='you'":""}>revoke</button></td></tr>`;});
+  h+=`</tbody></table>`;box.innerHTML=h;
+}
+document.getElementById("adminsTable").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-revoke]");if(!b)return;
+  if(!confirm("Revoke admin for this account?"))return;
+  try{await del("/admin/admins/"+encodeURIComponent(b.dataset.revoke));toast("Revoked");loadAdmins();}
+  catch(err){toast(err.message,true);}
+});
+
+/* boot */
+tryEnter();
+</script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VettaLume · Chapter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#e8e9e6; --ink-2:#e3e5e1;
+  --panel:#f0f1ee; --panel-2:#e9ebe7; --panel-3:#dcded9;
+  --line:rgba(22,26,22,.14); --line-soft:rgba(22,26,22,.085);
+  --text:#181a18; --text-2:#43473f; --text-3:#74786e; --text-4:#9a9d93;
+  --brand:#c8932e; --gold-ink:#8a5d16;
+  --varc:#b2847a; --dilr:#7d9a84; --qa:#797ea4;
+  --ok:#5c8f72; --warn:#bb7d49;
+  --maxw:1080px;
+  --f-display:"Hanken Grotesk",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --course:#c8932e;
+}
+body[data-exam="CAT"]{--course:#c8932e}
+body[data-exam="GMAT"]{--course:#a8705f}
+body[data-exam="GRE"]{--course:#6a6f9c}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-body);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5;
+  min-height:100vh;position:relative;overflow-x:hidden;background:linear-gradient(168deg,var(--ink),var(--ink-2))}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(860px 560px at 50% -12%, color-mix(in srgb,var(--sec,var(--course)) 16%,transparent), transparent 60%),
+    radial-gradient(680px 520px at 6% 10%, color-mix(in srgb,var(--course) 7%,transparent), transparent 58%),
+    radial-gradient(680px 600px at 92% 8%, color-mix(in srgb,var(--brand) 5%,transparent), transparent 60%)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* header */
+header{position:sticky;top:0;z-index:50;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 92%,transparent),color-mix(in srgb,var(--ink) 60%,transparent) 70%,transparent);
+  backdrop-filter:blur(12px) saturate(1.2);border-bottom:2px solid color-mix(in srgb,var(--course) 42%,var(--line))}
+.hbar{display:flex;align-items:center;gap:24px;height:66px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:21px}
+.nav{display:flex;gap:26px;font-size:14px;color:var(--text-3);margin-left:6px}
+.nav a{position:relative;transition:transform .2s cubic-bezier(.34,1.4,.64,1),color .2s}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:2px;background:var(--course);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav a:hover{color:var(--text);transform:translateY(-2px)}.nav a:hover::after{transform:scaleX(1)}
+.nav a.on{color:var(--text);font-weight:700}.nav a.on::after{transform:scaleX(1)}
+.seg{margin-left:auto;display:flex;gap:3px;background:var(--panel);padding:3px;border-radius:8px;border:1px solid var(--line-soft)}
+.seg button{font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:7px 12px;border-radius:6px;color:var(--text-3);transition:transform .14s}
+.seg button.on{background:var(--course);color:#fff}
+
+/* sub bar: back */
+.subbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px}
+.back{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;color:var(--text-3);padding:6px 0;transition:color .16s}
+.back:hover{color:var(--course)}
+
+/* chapter hero */
+.chero{padding:24px 0 6px}
+.chero .ck{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:color-mix(in srgb,var(--sec) 70%,var(--text-3));margin-bottom:12px}
+.chero h1{font-family:var(--f-display);font-weight:800;letter-spacing:-.03em;font-size:46px;line-height:1.02;color:var(--text)}
+.chero .csum{font-size:15px;line-height:1.6;color:var(--text-3);max-width:680px;margin-top:13px}
+
+/* 4-up stat row */
+.cstats{display:grid;grid-template-columns:repeat(4,1fr);margin:30px 0;
+  border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;
+  background:var(--panel-2)}
+.cstat{padding:22px 24px;border-right:1px solid var(--line-soft);--c:var(--brand);background:color-mix(in srgb,var(--c) 7%,transparent)}
+.cstat:last-child{border-right:none}
+.cstat .num{font-family:var(--f-display);font-weight:800;letter-spacing:-.02em;font-size:40px;line-height:1;
+  color:color-mix(in srgb,var(--c) 82%,var(--text))}
+.cstat .num small{font-size:19px;font-weight:700;color:color-mix(in srgb,var(--c) 45%,var(--text-4));letter-spacing:0}
+.cstat .lab{display:flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-top:13px}
+.cstat .lab .ld{width:7px;height:7px;border-radius:2px;background:var(--c);flex:0 0 auto}
+
+/* split row under stats */
+.csplit{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+.cbox{padding:6px 0 0}
+.cbox-h{display:flex;align-items:baseline;gap:10px;margin-bottom:22px}
+.cbox-h h3{font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:-.01em;color:var(--text)}
+.cbox-sub{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4)}
+.dchart{display:flex;gap:11px}
+.dyaxis{display:flex;flex-direction:column;justify-content:space-between;height:204px;align-items:flex-end;padding-top:1px}
+.dyaxis span{font-family:var(--f-mono);font-size:9px;letter-spacing:.02em;color:var(--text-4);line-height:1}
+.dbarscol{flex:1;min-width:0}
+.dgraph{display:flex;align-items:flex-end;gap:6px;height:204px}
+.dcol{flex:1;display:flex;align-items:flex-end;justify-content:center;height:100%}
+.dbar{position:relative;width:100%;max-width:64px;height:204px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--c) 56%,var(--line));
+  background:color-mix(in srgb,var(--brand) 4%,var(--panel-2))}
+.dfill{position:absolute;left:0;right:0;bottom:0;height:0;background:color-mix(in srgb,var(--c) 75%,var(--panel));
+  transition:height 1.2s cubic-bezier(.4,0,.2,1)}
+.dfill .dpct{position:absolute;bottom:9px;left:0;right:0;text-align:center;z-index:3;
+  font-family:var(--f-display);font-weight:800;font-size:13px;letter-spacing:-.01em;
+  color:color-mix(in srgb,var(--text) 80%,var(--c))}
+.dfill .seawave-h{position:absolute;left:0;top:-9px;width:100%;height:18px;z-index:1}
+.dfill .seawave-h path{fill:color-mix(in srgb,var(--c) 75%,var(--panel))}
+.dxaxis{display:flex;gap:6px;margin-top:9px}
+.dxaxis span{flex:1;text-align:center;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4)}
+
+/* right-half improvement box */
+.obox{border:1px solid var(--line-soft);border-radius:10px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:18px 20px 14px;display:flex;flex-direction:column}
+.obox .cbox-h{margin-bottom:14px}
+.odelta{margin-left:auto;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--gold-ink);display:inline-flex;align-items:center;gap:4px}
+.ochart{width:100%;height:auto;aspect-ratio:440/220;overflow:visible;margin-top:auto}
+.ochart .ogrid{stroke:var(--line-soft);stroke-width:1}
+.ochart .oarea{fill:url(#ograd)}
+.ochart .oline{fill:none;stroke:#c8932e;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ochart .odot{fill:#c8932e}
+.ochart .odot-last{fill:var(--panel);stroke:#c8932e;stroke-width:2.6}
+.ochart .oylab{font-family:var(--f-mono);font-size:9px;fill:var(--text-4)}
+.ochart .oxlab{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.04em;fill:var(--text-4)}
+.ochart .ocur{font-family:var(--f-display);font-weight:800;font-size:15px;fill:var(--gold-ink)}
+
+/* strongest / weakest topic boxes */
+.csplit2{margin-top:18px}
+.tbox{border:1px solid var(--line-soft);border-radius:10px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:16px 18px 11px;display:flex;flex-direction:column}
+.tbox .cbox-h{margin-bottom:7px}
+.tlist{display:flex;flex-direction:column}
+.trow{--c:var(--qa);display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.trow:last-child{border-bottom:none}
+.tname{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbar{width:72px;height:6px;flex:0 0 auto;background:color-mix(in srgb,var(--c) 12%,var(--panel));overflow:hidden;position:relative}
+.tbar i{position:absolute;left:0;top:0;bottom:0;width:0;background:color-mix(in srgb,var(--c) 72%,var(--panel));transition:width 1s cubic-bezier(.4,0,.2,1)}
+.tval{font-family:var(--f-mono);font-weight:700;font-size:12.5px;color:color-mix(in srgb,var(--c) 82%,var(--text));width:24px;text-align:right;flex:0 0 auto}
+.tmore{align-self:flex-end;margin-top:9px;display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);transition:color .16s}
+.tmore:hover{color:var(--brand)}
+.tmore svg{transition:transform .16s}
+.tmore:hover svg{transform:translateX(3px)}
+
+/* learning vs practice wide bar */
+.tsec{margin-top:18px}
+.twrap{display:flex;align-items:center;gap:16px}
+.twide{position:relative;flex:1 1 0;min-width:0;height:42px;overflow:hidden;border-radius:13px;
+  border:1px solid var(--line-soft);background:color-mix(in srgb,var(--brand) 4%,var(--panel-2))}
+.twide::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%,rgba(22,26,22,.05))}
+.tfill{position:absolute;top:0;bottom:0;width:0;z-index:0}
+.tfill-l{left:0;background:color-mix(in srgb,var(--learn) 64%,var(--panel));transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.tfill-r{right:0;background:color-mix(in srgb,var(--prac) 64%,var(--panel));transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.tfill .seawave-v{position:absolute;top:0;bottom:0;width:18px;height:100%}
+.tfill-l .seawave-v{right:-9px}
+.tfill-l .seawave-v path{fill:color-mix(in srgb,var(--learn) 64%,var(--panel))}
+.tfill-r .seawave-v{left:-9px;transform:scaleX(-1)}
+.tfill-r .seawave-v path{fill:color-mix(in srgb,var(--prac) 64%,var(--panel))}
+.tpct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;
+  font-family:var(--f-mono);font-weight:600;font-size:11.5px;letter-spacing:.06em}
+.tfill-l .tpct{color:color-mix(in srgb,var(--learn) 42%,#15120f)}
+.tfill-r .tpct{color:color-mix(in srgb,var(--prac) 42%,#15120f)}
+.tend{flex:0 0 auto;display:flex;flex-direction:column;gap:1px}
+.tend-l{align-items:flex-start;text-align:left}
+.tend-r{align-items:flex-end;text-align:right}
+.tt-v{font-family:var(--f-display);font-weight:800;font-size:13.5px;letter-spacing:-.01em;color:var(--text)}
+.tt-k{font-family:var(--f-mono);font-size:8.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+
+/* next-step two-card row */
+.csplit3{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.abox{border:1px solid var(--line-soft);border-radius:10px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:13px 18px;display:flex;flex-direction:column}
+.ak{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4);margin-bottom:10px}
+.arlist{display:flex;flex-direction:column;gap:10px}
+.arow{display:flex;gap:12px;align-items:flex-start}
+.arow .abul{flex:0 0 auto;width:7px;height:7px;border-radius:2px;background:var(--course);margin-top:7px}
+.arow p{font-size:14px;line-height:1.5;color:var(--text-2)}
+.arow b{color:var(--text);font-weight:700}
+.arow.extra{display:none}
+.abox.open .arow.extra{display:flex}
+.abox .tmore{margin-top:auto}
+.abox.open .tmore svg{transform:rotate(90deg)}
+.atxt{font-size:14px;line-height:1.55;color:var(--text-2)}
+.atxt b{color:var(--text);font-weight:700}
+.ameta{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-top:10px}
+.ameta .z{color:var(--gold-ink);font-weight:600}
+.abtns{display:flex;gap:10px;margin-top:auto;padding-top:12px}
+.btn{font-family:var(--f-body);font-size:13px;font-weight:600;padding:8px 14px;border-radius:7px;
+  border:1px solid var(--line);display:inline-flex;align-items:center;gap:7px;transition:transform .14s,border-color .16s,background .16s,color .16s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--panel);color:var(--gold-ink);border-color:color-mix(in srgb,var(--course) 60%,var(--line))}
+.btn-primary:hover{border-color:var(--course);background:color-mix(in srgb,var(--course) 8%,var(--panel))}
+.btn-ghost{background:var(--panel);color:var(--text-2)}
+.btn-ghost:hover{border-color:var(--course);color:var(--text)}
+
+/* subtopics bar list (learning-page chapter bar style) */
+.stsec{margin-top:30px}
+.stsec .cbox-h{margin-bottom:14px}
+.chaps{display:flex;flex-direction:column;gap:10px}
+.chap{--sec:var(--brand);position:relative;overflow:hidden;border-radius:5px;height:54px;cursor:pointer;
+  background:color-mix(in srgb,var(--sec) 5%,var(--panel-2));
+  border:1px solid color-mix(in srgb,var(--sec) 50%,var(--line));
+  transition:transform .2s cubic-bezier(.34,1.4,.5,1),border-color .18s}
+.chap:hover{transform:translateX(3px);border-color:color-mix(in srgb,var(--sec) 66%,var(--line))}
+.ctrack{position:absolute;inset:4px;border-radius:3px;overflow:hidden;z-index:0}
+.cfill{position:absolute;left:0;top:0;bottom:0;width:0;z-index:0;
+  background:color-mix(in srgb,var(--sec) 54%,var(--panel));transition:width 1.15s cubic-bezier(.4,0,.2,1)}
+.cfill .seawave-v{position:absolute;right:-9px;top:0;bottom:0;width:18px}
+.cfill .seawave-v path{fill:color-mix(in srgb,var(--sec) 54%,var(--panel))}
+.cface{position:relative;z-index:2;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:12px}
+.cleft{display:flex;align-items:center;gap:11px;min-width:0}
+.cbul{width:7px;height:7px;border-radius:2px;background:var(--sec);flex:0 0 auto}
+.cname{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.cpct{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-weight:600;font-size:15px;
+  color:color-mix(in srgb,var(--sec) 72%,var(--text));opacity:.9;letter-spacing:.02em}
+.car{font-family:var(--f-mono);font-size:17px;color:var(--text-3);flex:0 0 auto;transition:transform .18s}
+.chap:hover .car{transform:translateX(3px)}
+
+@media(max-width:760px){
+  .nav{display:none}
+  .chero h1{font-size:34px}
+  .cstats{grid-template-columns:repeat(2,1fr)}
+  .cstat{border-bottom:1px solid var(--line-soft)}
+  .cstat:nth-child(odd){border-right:1px solid var(--line-soft)}
+  .cstat:nth-child(even){border-right:none}
+  .cstat:nth-last-child(-n+2){border-bottom:none}
+  .csplit{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-exam="CAT" style="--sec:var(--qa)">
+<header>
+  <div class="wrap hbar">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 26 26" fill="none">
+        <path d="M3 4 L13 22 L23 4" stroke="#c8932e" stroke-width="2.2" stroke-linecap="square"/>
+        <path d="M8.5 4 L13 12.5 L17.5 4" stroke="#181a18" stroke-width="2.2" stroke-linecap="square"/>
+      </svg>VettaLume
+    </div>
+    <nav class="nav">
+      <a href="#" class="on">Dashboard</a>
+      <a href="#">The problem</a><a href="#">Personalization</a><a href="#">Exams</a><a href="#">Pricing</a>
+    </nav>
+    <div class="seg">
+      <button class="on">CAT</button><button>GMAT</button><button>GRE</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="subbar" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <button class="back" onclick="history.length>1?history.back():location.href='/console'">&larr; <span id="secname">Quantitative Ability</span></button>
+    <span style="flex:1"></span>
+    <select id="chapsel" style="font-family:var(--f-body);font-size:13px;font-weight:600;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer"></select>
+    <button class="btn btn-ghost" id="simbtn" title="Dev: auto-answer ~40 questions to populate this analysis">↻ simulate practice</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="chero">
+    <div class="ck">QA &middot; Arithmetic</div>
+    <h1>Time, Speed &amp; Distance</h1>
+    <p class="csum">Relative motion, average speed, and the recurring boats, trains and races setups that anchor a large share of CAT arithmetic. This page tracks how your understanding of the chapter is developing across every concept it covers.</p>
+  </section>
+
+  <section class="cstats">
+    <div class="cstat"><div class="num">1,248</div><div class="lab"><span class="ld"></span>Questions Answered</div></div>
+    <div class="cstat"><div class="num">64%</div><div class="lab"><span class="ld"></span>Topic Mastery</div></div>
+    <div class="cstat"><div class="num">9<small>/12</small></div><div class="lab"><span class="ld"></span>Topics Learnt</div></div>
+    <div class="cstat"><div class="num">78%</div><div class="lab"><span class="ld"></span>Overall Accuracy</div></div>
+  </section>
+
+  <section class="csplit">
+    <div class="cbox">
+      <div class="cbox-h">
+        <h3>Difficulty Spread</h3>
+        <span class="cbox-sub">Questions cleared per band</span>
+      </div>
+      <div class="dchart">
+        <div class="dyaxis"><span>100</span><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span></div>
+        <div class="dbarscol">
+          <div class="dgraph">
+            <div class="dcol" style="--c:#5c8f72"><div class="dbar"><div class="dfill" data-fill="88"><span class="dpct">88%</span><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div></div></div>
+            <div class="dcol" style="--c:#8a9a5e"><div class="dbar"><div class="dfill" data-fill="74"><span class="dpct">74%</span><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div></div></div>
+            <div class="dcol" style="--c:#c8932e"><div class="dbar"><div class="dfill" data-fill="61"><span class="dpct">61%</span><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div></div></div>
+            <div class="dcol" style="--c:#bb7d49"><div class="dbar"><div class="dfill" data-fill="43"><span class="dpct">43%</span><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div></div></div>
+            <div class="dcol" style="--c:#b2847a"><div class="dbar"><div class="dfill" data-fill="27"><span class="dpct">27%</span><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div></div></div>
+          </div>
+          <div class="dxaxis"><span>D1</span><span>D2</span><span>D3</span><span>D4</span><span>D5</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="obox">
+      <div class="cbox-h">
+        <h3>Improvement Over Time</h3>
+        <span class="cbox-sub">Topic mastery</span>
+        <span class="odelta">&#9650; +43 in 8 wks</span>
+      </div>
+      <svg class="ochart" viewBox="0 0 440 220">
+        <defs>
+          <linearGradient id="ograd" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c8932e" stop-opacity="0.30"/>
+            <stop offset="1" stop-color="#c8932e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line class="ogrid" x1="34" y1="14" x2="428" y2="14"/>
+        <line class="ogrid" x1="34" y1="58.5" x2="428" y2="58.5"/>
+        <line class="ogrid" x1="34" y1="103" x2="428" y2="103"/>
+        <line class="ogrid" x1="34" y1="147.5" x2="428" y2="147.5"/>
+        <line class="ogrid" x1="34" y1="192" x2="428" y2="192"/>
+        <text class="oylab" x="27" y="17" text-anchor="end">100</text>
+        <text class="oylab" x="27" y="61.5" text-anchor="end">75</text>
+        <text class="oylab" x="27" y="106" text-anchor="end">50</text>
+        <text class="oylab" x="27" y="150.5" text-anchor="end">25</text>
+        <text class="oylab" x="27" y="195" text-anchor="end">0</text>
+        <path class="oarea" d="M34,154.6 L90.3,143.9 L146.6,133.3 L202.9,124.4 L259.1,110.1 L315.4,99.4 L371.7,87 L428,78.1 L428,192 L34,192 Z"/>
+        <polyline class="oline" points="34,154.6 90.3,143.9 146.6,133.3 202.9,124.4 259.1,110.1 315.4,99.4 371.7,87 428,78.1"/>
+        <circle class="odot" cx="34" cy="154.6" r="2.6"/>
+        <circle class="odot" cx="90.3" cy="143.9" r="2.6"/>
+        <circle class="odot" cx="146.6" cy="133.3" r="2.6"/>
+        <circle class="odot" cx="202.9" cy="124.4" r="2.6"/>
+        <circle class="odot" cx="259.1" cy="110.1" r="2.6"/>
+        <circle class="odot" cx="315.4" cy="99.4" r="2.6"/>
+        <circle class="odot" cx="371.7" cy="87" r="2.6"/>
+        <circle class="odot-last" cx="428" cy="78.1" r="4.4"/>
+        <text class="ocur" x="424" y="68" text-anchor="end">64%</text>
+        <text class="oxlab" x="34" y="208" text-anchor="middle">W1</text>
+        <text class="oxlab" x="90.3" y="208" text-anchor="middle">W2</text>
+        <text class="oxlab" x="146.6" y="208" text-anchor="middle">W3</text>
+        <text class="oxlab" x="202.9" y="208" text-anchor="middle">W4</text>
+        <text class="oxlab" x="259.1" y="208" text-anchor="middle">W5</text>
+        <text class="oxlab" x="315.4" y="208" text-anchor="middle">W6</text>
+        <text class="oxlab" x="371.7" y="208" text-anchor="middle">W7</text>
+        <text class="oxlab" x="428" y="208" text-anchor="middle">W8</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- right half + lower sections to be built -->
+
+  <section class="csplit csplit2">
+    <div class="tbox">
+      <div class="cbox-h"><h3>Strongest Topics</h3></div>
+      <div class="tlist">
+        <div class="trow" data-val="91"><span class="tname">Average Speed</span><span class="tbar"><i></i></span><span class="tval">91</span></div>
+        <div class="trow" data-val="83"><span class="tname">Relative Motion</span><span class="tbar"><i></i></span><span class="tval">83</span></div>
+        <div class="trow" data-val="76"><span class="tname">Unit Conversion</span><span class="tbar"><i></i></span><span class="tval">76</span></div>
+      </div>
+      <button class="tmore">More <svg width="22" height="9" viewBox="0 0 22 9" fill="none"><path d="M1 4.5 H18 M14 1 L20 4.5 L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="tbox">
+      <div class="cbox-h"><h3>Weakest Topics</h3></div>
+      <div class="tlist">
+        <div class="trow" data-val="23"><span class="tname">Boats &amp; Streams</span><span class="tbar"><i></i></span><span class="tval">23</span></div>
+        <div class="trow" data-val="31"><span class="tname">Circular Motion</span><span class="tbar"><i></i></span><span class="tval">31</span></div>
+        <div class="trow" data-val="39"><span class="tname">Clock Problems</span><span class="tbar"><i></i></span><span class="tval">39</span></div>
+      </div>
+      <button class="tmore">More <svg width="22" height="9" viewBox="0 0 22 9" fill="none"><path d="M1 4.5 H18 M14 1 L20 4.5 L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </section>
+
+  <section class="tsec">
+    <div class="cbox-h">
+      <h3>Learning vs Practice</h3>
+      <span class="cbox-sub">Time invested in this chapter</span>
+    </div>
+    <div class="twrap">
+      <div class="tend tend-l"><span class="tt-v">38h 20m</span><span class="tt-k">Learned</span></div>
+      <div class="twide" style="--learn:var(--qa);--prac:var(--dilr)">
+        <div class="tfill tfill-l" data-fill="58"><svg class="seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg><span class="tpct">58%</span></div>
+        <div class="tfill tfill-r" data-fill="42"><svg class="seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg><span class="tpct">42%</span></div>
+      </div>
+      <div class="tend tend-r"><span class="tt-v">27h 45m</span><span class="tt-k">Practiced</span></div>
+    </div>
+  </section>
+
+  <section class="csplit3">
+    <div class="abox" id="recbox">
+      <div class="ak">Recommended Next Action</div>
+      <div class="arlist">
+        <div class="arow"><span class="abul"></span><p>Learn <b>Parajumbles</b> next. Push hard-level practice.</p></div>
+        <div class="arow extra"><span class="abul"></span><p>Revisit <b>Para Summary</b>, accuracy is slipping.</p></div>
+        <div class="arow extra"><span class="abul"></span><p>Drill <b>Odd One Out</b> for speed.</p></div>
+      </div>
+      <button class="tmore" id="recmore">More <svg width="22" height="9" viewBox="0 0 22 9" fill="none"><path d="M1 4.5 H18 M14 1 L20 4.5 L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="abox">
+      <div class="ak">Topic Practice Test</div>
+      <p class="atxt">Mixed questions across <b>Parajumbles &amp; Summary</b>, then full analysis.</p>
+      <div class="ameta">Last <span class="z">0 / 12</span> &middot; <span class="z">0%</span></div>
+      <div class="abtns">
+        <button class="btn btn-primary">Practice questions <span>&#8594;</span></button>
+        <button class="btn btn-ghost">View analysis</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stsec">
+    <div class="cbox-h"><h3>Subtopics</h3><span class="cbox-sub">6 concepts in this chapter</span></div>
+    <div class="chaps">
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="90"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Average Speed</span></div><span class="cpct">90%</span><span class="car">&#8594;</span></div></div>
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="47"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Trains</span></div><span class="cpct">47%</span><span class="car">&#8594;</span></div></div>
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="73"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Relative Motion</span></div><span class="cpct">73%</span><span class="car">&#8594;</span></div></div>
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="22"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Boats &amp; Streams</span></div><span class="cpct">22%</span><span class="car">&#8594;</span></div></div>
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="84"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Circular Motion</span></div><span class="cpct">84%</span><span class="car">&#8594;</span></div></div>
+      <div class="chap"><div class="ctrack"><div class="cfill" data-fill="9"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">Clock Problems</span></div><span class="cpct">9%</span><span class="car">&#8594;</span></div></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---- helpers (sea-wave + colour ramp carried over from the original design) ---- */
+function seaPathH(ph,t){var W=200,base=10,d="";for(var x=0;x<=W;x+=5){var y=base+1.8*Math.sin(0.034*x+2.10*t+ph)+1.0*Math.sin(0.072*x-1.55*t+ph*1.5)+0.6*Math.sin(0.016*x+0.92*t+ph*0.4);d+=(x===0?"M":"L")+x+" "+y.toFixed(2)+" ";}return d+"L"+W+" 20 L0 20 Z";}
+function seaPathV(ph,t){var H=100,mid=10,d="M0 0 L";for(var y=0;y<=H;y+=4){var x=mid+2.4*Math.sin(0.130*y+1.75*t+ph)+1.4*Math.sin(0.230*y-1.30*t+ph*1.6)+0.9*Math.sin(0.060*y+0.72*t+ph*0.5);d+=x.toFixed(2)+" "+y+" L";}return d+"0 "+H+" Z";}
+let SEA_STARTED=false;
+function startSea(){
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function frame(t){document.querySelectorAll(".seawave-h path, .seawave-v path").forEach(function(p){
+    if(!p.getAttribute("data-phase"))p.setAttribute("data-phase",(Math.random()*6.28).toFixed(2));
+    var ph=parseFloat(p.getAttribute("data-phase"));
+    p.setAttribute("d",p.parentNode.classList.contains("seawave-v")?seaPathV(ph,t):seaPathH(ph,t));});}
+  if(reduce){frame(0);return;}
+  if(SEA_STARTED)return; SEA_STARTED=true;
+  var t0=Date.now();(function tick(){frame((Date.now()-t0)/1000);requestAnimationFrame(tick);})();
+}
+function pctColor(p){var rose=[188,116,104],peri=[121,126,164],sage=[90,150,112],a,b,t;
+  if(p<50){a=rose;b=peri;t=Math.max(0,Math.min(1,(p-10)/40));}else{a=peri;b=sage;t=(p-50)/50;}
+  return "rgb("+Math.round(a[0]+(b[0]-a[0])*t)+","+Math.round(a[1]+(b[1]-a[1])*t)+","+Math.round(a[2]+(b[2]-a[2])*t)+")";}
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const pct=v=>Math.round((v||0)*100);
+const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const params=new URLSearchParams(location.search);
+let EXAM=params.get("exam")||document.body.dataset.exam||"CAT";
+let TOPIC=params.get("topic")||null;
+let LEARNER=null;
+
+async function ensureLearner(){
+  LEARNER=localStorage.getItem("vl_learner");
+  if(LEARNER)return;
+  const r=await fetch("/auth/dev-login",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email:"chapter-"+Math.random().toString(36).slice(2)+"@vl.local"})});
+  LEARNER=(await r.json()).learner_id; localStorage.setItem("vl_learner",LEARNER);
+}
+async function api(path,opts={}){
+  const r=await fetch(path,Object.assign({headers:{"X-Learner-Id":LEARNER,"Content-Type":"application/json"}},opts));
+  if(!r.ok) throw new Error(path+" -> "+r.status);
+  return r.json();
+}
+
+function applyColorsAndFills(){
+  $$(".dcol").forEach(c=>{const f=c.querySelector(".dfill");if(f)c.style.setProperty("--c",pctColor(parseFloat(f.getAttribute("data-fill")||0)));});
+  $$(".chap").forEach(ch=>{const f=ch.querySelector(".cfill");if(f)ch.style.setProperty("--sec",pctColor(parseFloat(f.getAttribute("data-fill")||0)));});
+  $$(".trow").forEach(r=>{const v=parseFloat(r.getAttribute("data-val")||0);r.style.setProperty("--c","var(--brand)");const bar=r.querySelector(".tbar i");if(bar)setTimeout(()=>bar.style.width=v+"%",90);});
+  setTimeout(()=>$$(".dfill[data-fill]").forEach(f=>f.style.height=f.getAttribute("data-fill")+"%"),80);
+  setTimeout(()=>$$(".tfill[data-fill]").forEach(f=>f.style.width=f.getAttribute("data-fill")+"%"),80);
+  setTimeout(()=>$$(".cfill[data-fill]").forEach(f=>f.style.width=f.getAttribute("data-fill")+"%"),80);
+}
+
+/* rebuild the improvement line chart (viewBox 0 0 440 220) from the API series */
+function buildOChart(series,current){
+  const X0=34,X1=428,YT=14,YB=192,n=series.length;
+  if(!n) return "";
+  const xs=n<=1?[X1]:series.map((_,i)=>X0+(X1-X0)*i/(n-1));
+  const ys=series.map(p=>YB-(p.mastery)*(YB-YT));
+  const grid=[14,58.5,103,147.5,192].map(y=>`<line class="ogrid" x1="34" y1="${y}" x2="428" y2="${y}"/>`).join("");
+  const ylab=[["100",17],["75",61.5],["50",106],["25",150.5],["0",195]].map(p=>`<text class="oylab" x="27" y="${p[1]}" text-anchor="end">${p[0]}</text>`).join("");
+  const linePts=xs.map((x,i)=>`${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ");
+  const area=`M${xs[0].toFixed(1)},${ys[0].toFixed(1)} `+xs.map((x,i)=>`L${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ")+` L${xs[n-1].toFixed(1)},${YB} L${xs[0].toFixed(1)},${YB} Z`;
+  const dots=xs.map((x,i)=>i===n-1?`<circle class="odot-last" cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4.4"/>`:`<circle class="odot" cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="2.6"/>`).join("");
+  const cur=`<text class="ocur" x="${(xs[n-1]-4).toFixed(1)}" y="${Math.max(12,ys[n-1]-10).toFixed(1)}" text-anchor="end">${pct(current)}%</text>`;
+  const xlab=xs.map((x,i)=>`<text class="oxlab" x="${x.toFixed(1)}" y="208" text-anchor="middle">${esc(series[i].label)}</text>`).join("");
+  const defs=`<defs><linearGradient id="ograd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8932e" stop-opacity="0.30"/><stop offset="1" stop-color="#c8932e" stop-opacity="0"/></linearGradient></defs>`;
+  return defs+grid+ylab+`<path class="oarea" d="${area}"/><polyline class="oline" points="${linePts}"/>`+dots+cur+xlab;
+}
+
+function render(d){
+  document.body.dataset.exam=d.exam||EXAM;
+  $(".chero .ck").textContent=`${(d.chapter.section||"").toUpperCase()} · chapter`;
+  $(".chero h1").textContent=d.chapter.name;
+  if($("#secname"))$("#secname").textContent=d.chapter.section||"Back";
+  // KPIs
+  const k=d.kpis,nums=$$(".cstats .cstat .num");
+  if(nums[0])nums[0].textContent=k.questions_answered.toLocaleString();
+  if(nums[1])nums[1].textContent=pct(k.topic_mastery)+"%";
+  if(nums[2])nums[2].innerHTML=`${k.concepts_learnt}<small>/${k.concepts_total}</small>`;
+  if(nums[3])nums[3].textContent=pct(k.overall_accuracy)+"%";
+  // difficulty spread (5 bands)
+  const cols=$$(".dgraph .dcol");
+  d.difficulty_spread.forEach((b,i)=>{if(!cols[i])return;const f=cols[i].querySelector(".dfill");const v=pct(b.cleared_pct);
+    f.setAttribute("data-fill",v);const p=f.querySelector(".dpct");if(p)p.textContent=v+"%";});
+  // improvement over time
+  const io=d.improvement_over_time, oc=$(".ochart"); if(oc)oc.innerHTML=buildOChart(io.series,io.current);
+  const od=$(".odelta"); if(od){const dl=pct(io.delta);od.innerHTML=`&#9650; ${dl>=0?"+":""}${dl} pts`;od.style.display=io.series.length>1?"":"none";}
+  // strongest / weakest
+  const boxes=$$(".csplit2 .tbox .tlist");
+  const rows=arr=>arr.map(c=>`<div class="trow" data-val="${pct(c.mastery)}"><span class="tname">${esc(c.name)}</span><span class="tbar"><i></i></span><span class="tval">${pct(c.mastery)}</span></div>`).join("");
+  if(boxes[0])boxes[0].innerHTML=rows(d.strongest);
+  if(boxes[1])boxes[1].innerHTML=rows(d.weakest);
+  // learning vs practice
+  const lv=d.learning_vs_practice, tl=$(".tfill-l"), tr=$(".tfill-r");
+  if(tl){tl.setAttribute("data-fill",pct(lv.learned_pct));const s=tl.querySelector(".tpct");if(s)s.textContent=pct(lv.learned_pct)+"%";}
+  if(tr){tr.setAttribute("data-fill",pct(lv.practiced_pct));const s=tr.querySelector(".tpct");if(s)s.textContent=pct(lv.practiced_pct)+"%";}
+  const tv=$$(".tend .tt-v"); if(tv[0])tv[0].textContent=lv.learned_hms; if(tv[1])tv[1].textContent=lv.practiced_hms;
+  // recommended actions
+  const arl=$(".arlist"); if(arl)arl.innerHTML=d.recommended_actions.map((a,i)=>`<div class="arow ${i>0?"extra":""}"><span class="abul"></span><p>${esc(a.text)}</p></div>`).join("");
+  const rm=$("#recmore"); if(rm)rm.style.display=d.recommended_actions.length>1?"":"none";
+  // practice test card
+  const ptc=d.practice_test, meta=$(".ameta"); if(meta)meta.innerHTML=`Last <span class="z">${ptc.last_correct} / ${ptc.last_total}</span> &middot; <span class="z">${pct(ptc.last_accuracy)}%</span>`;
+  // subtopics
+  const sub=$(".chaps"); if(sub)sub.innerHTML=d.subtopics.map(c=>`<div class="chap"><div class="ctrack"><div class="cfill" data-fill="${pct(c.mastery)}"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">${esc(c.name)}</span></div><span class="cpct">${pct(c.mastery)}%</span><span class="car">&#8594;</span></div></div>`).join("");
+  const ss=$(".stsec .cbox-sub"); if(ss)ss.textContent=`${d.subtopics.length} concept${d.subtopics.length===1?"":"s"} in this chapter`;
+  applyColorsAndFills(); startSea();
+}
+
+async function loadChapters(){
+  const m=await api(`/learn/map?exam=${encodeURIComponent(EXAM)}`);
+  const sel=$("#chapsel"); sel.innerHTML="";
+  (m.topics||[]).forEach(t=>{const o=document.createElement("option");o.value=t.name;o.textContent=t.name+" — "+pct(t.mastery)+"%";sel.appendChild(o);});
+  if((!TOPIC||!(m.topics||[]).some(t=>t.name===TOPIC)) && m.topics && m.topics.length)
+    TOPIC=(m.topics.find(t=>t.recommended)||m.topics[0]).name;
+  if(TOPIC)sel.value=TOPIC;
+  return (m.topics||[]).length;
+}
+async function loadAnalysis(){
+  if(!TOPIC){$(".chero h1").textContent="No chapters in "+EXAM+" yet — upload questions via /docs";return;}
+  try{render(await api(`/analysis/chapter?exam=${encodeURIComponent(EXAM)}&topic=${encodeURIComponent(TOPIC)}`));}
+  catch(e){$(".chero h1").textContent="Could not load "+TOPIC;}
+}
+
+$("#chapsel").onchange=e=>{TOPIC=e.target.value;loadAnalysis();};
+$("#simbtn").onclick=async()=>{const b=$("#simbtn");b.disabled=true;b.textContent="simulating…";
+  try{await api(`/analysis/simulate?exam=${encodeURIComponent(EXAM)}&steps=60&accuracy=0.7`,{method:"POST"});}catch(e){}
+  b.disabled=false;b.textContent="↻ simulate practice"; await loadChapters(); await loadAnalysis();};
+$$(".seg button").forEach(b=>b.onclick=async()=>{$$(".seg button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  EXAM=b.textContent.trim();TOPIC=null; await loadChapters(); await loadAnalysis();});
+(function(){const rm=document.getElementById("recmore");if(rm)rm.onclick=function(){const bx=rm.closest(".abox");const open=bx.classList.toggle("open");rm.firstChild.nodeValue=open?"Less ":"More ";};})();
+
+(async function init(){
+  // reflect ?exam= in the segmented control
+  $$(".seg button").forEach(x=>x.classList.toggle("on", x.textContent.trim()===EXAM));
+  await ensureLearner(); await loadChapters(); await loadAnalysis();
+})();
+</script>
+</body>
+</html>
